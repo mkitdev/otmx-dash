@@ -1,0 +1,10 @@
+[project]
+name = "otmx-dash"
+version = "0.1.0"
+description = "tools untuk analisa data otomax"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+authors = [
+{name = "Hasan Maki", email = "hasanmaki.ahmad@gmail.com"}
+]
