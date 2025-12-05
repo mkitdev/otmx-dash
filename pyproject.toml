@@ -5,6 +5,7 @@ description = "tools untuk analisa data otomax"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "loguru-config>=0.1.0",
     "streamlit>=1.52.0",
 ]
 authors = [
