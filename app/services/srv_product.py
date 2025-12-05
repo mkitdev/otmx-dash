@@ -23,16 +23,25 @@ def get_product_data() -> pd.DataFrame:
     untuk query dari database.
 
     Returns:
-        DataFrame berisi data produk atau empty DataFrame jika error
+        DataFrame berisi data produk
+
+    Raises:
+        FileNotFoundError: Jika file CSV tidak ditemukan
+        ValueError: Jika data kosong dari sumber
+        Exception: Jika error saat membaca data
     """
     try:
         if not MOCK_CSV.exists():
             raise FileNotFoundError(f"Mock data tidak ditemukan: {MOCK_CSV}")
 
         df = pd.read_csv(MOCK_CSV)
+
+        if df.empty:
+            raise ValueError("Data produk kosong dari sumber data")
+
         log_app(f"Loaded mock data produk: {len(df)} rows")
+        return df
 
     except Exception as exc:
         logger.error(f"Error membaca mock data produk: {exc}")
-        return pd.DataFrame()
-    return df
+        raise  # UI layer yang handle exception
