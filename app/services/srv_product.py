@@ -40,8 +40,8 @@ def get_product_data() -> pd.DataFrame:
             raise ValueError("Data produk kosong dari sumber data")
 
         log_app(f"Loaded mock data produk: {len(df)} rows")
-        return df
 
     except Exception as exc:
         logger.error(f"Error membaca mock data produk: {exc}")
         raise  # UI layer yang handle exception
+    return df

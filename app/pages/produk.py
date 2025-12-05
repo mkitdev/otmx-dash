@@ -43,7 +43,6 @@ def on_load_data_produk():
     st.session_state.produk_is_loading = True
 
     try:
-        get_product_data.clear()  # Clear cache before loading fresh data
         get_product_data()  # From cache, service validates data
 
         # Update state
@@ -87,7 +86,7 @@ with st.sidebar:
         st.spinner("Loading...")
 
     if st.session_state.produk_error:
-        st.error(st.session_state.produk_error)
+        st.warning(st.session_state.produk_error)
 
     # Show last update time
     if st.session_state.produk_last_update:
