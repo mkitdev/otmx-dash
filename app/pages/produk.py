@@ -85,13 +85,8 @@ def on_clear_cache():
     )
 
 
-# UI HEADER
-
-
-st.header("Data Produk", divider=True)
-
-
 # SIDEBAR CONTROLS
+
 
 with st.sidebar:
     st.button(
@@ -115,21 +110,29 @@ with st.sidebar:
     if st.session_state.produk_error:
         st.warning(st.session_state.produk_error)
 
-    # Show last update time
-    if st.session_state.produk_last_update:
-        st.caption(
-            f"Terakhir diperbarui: {st.session_state.produk_last_update.strftime('%H:%M:%S')}"
-        )
+    # # Show last update time
+    # if st.session_state.produk_last_update:
+    #     st.caption(
+    #         f"Terakhir diperbarui: {st.session_state.produk_last_update.strftime('%H:%M:%S')}"
+    #     )
 
 
 # MAIN CONTENT
+# UI HEADER
+
+with st.container(
+    horizontal=True,
+):
+    st.header(body="Data Produk", divider=True)
 
 
 def render_statitics_ui():
     """Render statistik produk dalam bentuk cards."""
     with st.container():
         with st.expander(
-            label="Lihat Statistik Produk", expanded=False, width="stretch"
+            label=f"list product with last update {st.session_state.produk_last_update.strftime('%H:%M:%S') if st.session_state.produk_last_update else 'N/A'}",
+            expanded=False,
+            width="stretch",
         ):
             st.dataframe(
                 data=df,
