@@ -5,23 +5,31 @@ import pandas as pd
 import streamlit as st
 from loguru import logger
 
+from app.core.mlog import log_app
+
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 MOCK_CSV = DATA_DIR / "mock_data_produk.csv"
 
 # [ ] TODO: Later migrate to sql server
 
 
-def _read_csv(path: Path) -> pd.DataFrame:
-    if not path.exists():
-        raise FileNotFoundError(path)
-    return pd.read_csv(path)
-
-
 @st.cache_data(ttl=timedelta(minutes=10))
-def load_product_data() -> pd.DataFrame:
-    """Load product data from csv with fallback to mock data."""
+def get_product_data() -> pd.DataFrame:
+    """Load product data dari mock CSV.
+
+    Function ini di-cache selama 10 menit untuk performa.
+
+    Nanti ketika actual data siap (SQL Server), ganti function ini
+    untuk query dari database.
+    """
     try:
-        return _read_csv(MOCK_CSV)
+        if not MOCK_CSV.exists():
+            raise FileNotFoundError(f"Mock data tidak ditemukan: {MOCK_CSV}")
+
+        df = pd.read_csv(MOCK_CSV)
+        log_app(f"Loaded mock data produk: {len(df)} rows")
+
     except Exception as exc:
-        logger.error(f"Gagal muat mock data: {exc}")
+        logger.error(f"Error membaca mock data produk: {exc}")
         return pd.DataFrame()
+    return df
