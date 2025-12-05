@@ -1,6 +1,6 @@
 import streamlit as st
 
-from app.services.auth_guard import init_auth_state
+from app.services.auth.adapter import get_auth
 from app.services.tracking import track_page_visit
 
 st.set_page_config(
@@ -19,8 +19,8 @@ st.logo(
     link="https://www.otomax-software.com/id",
 )
 
-# initialize authentication state
-init_auth_state()
+# Initialize authentication state (adapter auto-initializes via get_auth)
+auth = get_auth()
 
 # Counter to track app reruns
 if "app_main_rerun_counter" not in st.session_state:
@@ -37,7 +37,7 @@ adm_settings = st.Page("pages/settings.py", title="Settings")
 
 
 # NAVIGATION ROUTING
-if st.session_state.get("auth_is_authenticated"):
+if auth.is_authenticated:
     # Build navigation based on role
     nav_config = {
         "Welcome": [landing],
@@ -46,7 +46,7 @@ if st.session_state.get("auth_is_authenticated"):
     }
 
     # Only add Admin section if user is administrator
-    if st.session_state.get("auth_user_role") == "administrator":
+    if auth.role == "administrator":
         nav_config["Admin"] = [adm_settings]
 
     pg = st.navigation(nav_config)

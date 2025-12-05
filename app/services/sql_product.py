@@ -40,21 +40,24 @@ join operator as opr on prd.kode_operator = opr.kode
 # =========================
 
 
-def _transform_product_data(df_raw: pd.DataFrame) -> pd.DataFrame:  # noqa: ARG001
+def _transform_product_data(df_raw: pd.DataFrame) -> pd.DataFrame:
     """Normalisasi & business rule layer via DuckDB."""
+    # guard if df_raw is empty
+    if df_raw.empty:
+        return df_raw
     return duckdb.sql(
         """
         SELECT
             *,
 
-            -- OPERATOR STATUS
+            -- OPERATOR STATUS (DERIVED)
             CASE
                 WHEN opr_gangguan = 0 AND opr_kosong = 0
                 THEN 'available'
                 ELSE 'unavailable'
             END AS opr_status,
 
-            -- PRODUCT STATUS
+            -- PRODUCT STATUS (DERIVED, LOCAL)
             CASE
                 WHEN prd_stts_aktif = 1
                  AND prd_stts_gangguan = 0
@@ -62,6 +65,14 @@ def _transform_product_data(df_raw: pd.DataFrame) -> pd.DataFrame:  # noqa: ARG0
                 THEN 'available'
                 ELSE 'unavailable'
             END AS prd_status,
+
+            -- FINAL PRODUCT STATUS (GLOBAL RESOLUTION)
+            CASE
+                WHEN opr_gangguan = 1 OR opr_kosong = 1 THEN 'unavailable'
+                WHEN prd_stts_gangguan = 1 OR prd_stts_kosong = 1 THEN 'unavailable'
+                WHEN prd_stts_aktif = 0 THEN 'unavailable'
+                ELSE 'available'
+            END AS prd_status_final,
 
             -- PRODUCT TYPE
             CASE

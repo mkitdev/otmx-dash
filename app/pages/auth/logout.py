@@ -3,7 +3,8 @@
 import streamlit as st
 
 from app.core.mlog import log_user_event
-from app.services.auth_guard import get_current_user, require_login
+from app.services.auth.adapter import get_auth, get_current_user, save_auth
+from app.services.auth.guard import require_login
 
 # ============================================================================
 # GUARD - REQUIRE LOGIN
@@ -16,12 +17,12 @@ require_login()
 # ============================================================================
 def on_logout():
     """Callback: Clear auth state."""
-    user = st.session_state.get("auth_username", "unknown")
+    user = get_current_user() or "unknown"
     log_user_event("logout", user_id=user)
 
-    st.session_state.auth_is_authenticated = False
-    st.session_state.auth_username = None
-    st.session_state.auth_user_role = None
+    auth = get_auth()
+    auth.logout()
+    save_auth(auth)
 
     st.success("✅ Berhasil logout")
     st.rerun()

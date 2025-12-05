@@ -2,21 +2,19 @@
 
 import streamlit as st
 
-from app.services.auth import get_default_user, validate_credentials
-from app.services.auth_guard import get_current_user, init_auth_state, is_auth_enabled
+from app.services.auth.adapter import get_auth, get_current_user, save_auth
+from app.services.auth.config import AuthConfig
+from app.services.auth_credentials import get_default_user, validate_credentials
+
+st.set_page_config(page_title="Login", layout="centered")
 
 st.set_page_config(page_title="Login", layout="centered")
 
 # ============================================================================
-# STATE INITIALIZATION (UI Layer responsibility)
-# ============================================================================
-init_auth_state()
-
-
-# ============================================================================
 # REDIRECT IF ALREADY AUTHENTICATED
 # ============================================================================
-if st.session_state.get("auth_is_authenticated"):
+auth = get_auth()
+if auth.is_authenticated:
     st.success(f"✅ Sudah login sebagai **{get_current_user()}**")
     st.stop()
 
@@ -26,16 +24,17 @@ if st.session_state.get("auth_is_authenticated"):
 # ============================================================================
 def on_login_submit(username: str, password: str):
     """Callback: Validate credentials & update state."""
-    users = st.secrets.get("users", {})
+    config = AuthConfig.instance()
+    users = config.get_users_dict()
 
     # Check if auth enabled
-    if not is_auth_enabled():
+    if not config.is_enabled():
         # Dev mode: auto-login
         user_data = get_default_user(users)
         if user_data:
-            st.session_state.auth_username = user_data["username"]
-            st.session_state.auth_user_role = user_data["role"]
-            st.session_state.auth_is_authenticated = True
+            auth_session = get_auth()
+            auth_session.login(user_data["username"], user_data["role"])
+            save_auth(auth_session)
             st.success("✅ Login berhasil (dev mode)")
             st.rerun()
         return
@@ -44,9 +43,9 @@ def on_login_submit(username: str, password: str):
     user_data = validate_credentials(username, password, users)
 
     if user_data:
-        st.session_state.auth_username = user_data["username"]
-        st.session_state.auth_user_role = user_data["role"]
-        st.session_state.auth_is_authenticated = True
+        auth_session = get_auth()
+        auth_session.login(user_data["username"], user_data["role"])
+        save_auth(auth_session)
         st.success("✅ Login berhasil")
         st.rerun()
     else:
@@ -94,7 +93,7 @@ login_form()
 # ============================================================================
 # INFO SECTION
 # ============================================================================
-with st.expander("ℹ️ Info Login"):
+with st.expander("Info Login"):
     st.write("""
         - Gunakan username dan password yang sudah didaftarkan di file `secrets.toml`.
         - Jika belum memiliki akun, silakan hubungi administrator sistem.

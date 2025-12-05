@@ -6,7 +6,8 @@ import streamlit as st
 import streamlit_shadcn_ui as ui
 
 from app.core.mlog import log_user_event
-from app.services.auth_guard import require_login
+from app.services.auth.adapter import get_current_user, get_current_user_role
+from app.services.auth.guard import require_login
 from app.services.sql_product import get_product_data
 
 require_login()
@@ -44,8 +45,8 @@ def on_load_data_produk():
     st.session_state.produk_is_loading = True
     log_user_event(
         event="user load_data_produk",
-        user_id=st.session_state.get("auth_username", "user"),
-        role=st.session_state.get("auth_user_role", "user"),
+        user_id=get_current_user() or "user",
+        role=get_current_user_role() or "user",
         message="user Load Data Produk",
     )
     try:
@@ -72,15 +73,15 @@ def on_load_data_produk():
 
 
 def on_clear_cache():
-    """callback: Clear cache data produk."""
+    """Callback: Clear cache data produk, reset state flags."""
     get_product_data.clear()
     st.session_state.produk_is_loaded = False
     st.session_state.produk_error = None
     st.session_state.produk_last_update = None
     log_user_event(
         event="user clear_cache_produk",
-        user_id=st.session_state.get("auth_username", "user"),
-        role=st.session_state.get("auth_user_role", "user"),
+        user_id=get_current_user() or "user",
+        role=get_current_user_role() or "user",
         message="user Clear Cache Produk",
     )
 

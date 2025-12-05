@@ -3,6 +3,7 @@
 import streamlit as st
 
 from app.core.mlog import log_user_event
+from app.services.auth.adapter import get_current_user, get_current_user_role
 
 
 def track_page_visit(current_page: str) -> None:
@@ -18,8 +19,8 @@ def track_page_visit(current_page: str) -> None:
     if current_page == st.session_state.current_page:
         return
 
-    user = st.session_state.get("auth_username", "user")
-    role = st.session_state.get("auth_user_role", "user")
+    user = get_current_user() or "user"
+    role = get_current_user_role() or "user"
     referrer = st.session_state.current_page or "start"
 
     # Log page visit with full context
