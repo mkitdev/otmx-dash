@@ -1,6 +1,6 @@
 import streamlit as st
 
-from app.services.auth import init_auth_state
+from app.services.auth_guard import init_auth_state
 from app.services.tracking import track_page_visit
 
 st.set_page_config(
@@ -18,24 +18,30 @@ st.logo(
     image=".streamlit/otomax_logo.png",
     link="https://www.otomax-software.com/id",
 )
+
+# ============================================================================
+# STATE INITIALIZATION
+# ============================================================================
 init_auth_state()
 
-# this is the counter to track app_reruns
+# Counter to track app reruns
 if "app_main_rerun_counter" not in st.session_state:
     st.session_state.app_main_rerun_counter = 0
 
+
+# ============================================================================
+# PAGE DEFINITIONS
+# ============================================================================
 login_pg = st.Page("pages/login.py", title="Login")
 logout_pg = st.Page("pages/logout.py", title="Logout")
-
-
 landing = st.Page("pages/landing.py", title="Home", default=True)
 produk = st.Page("pages/produk.py", title="Produk")
 reseller = st.Page("pages/reseller.py", title="Reseller")
-
-login_pg = st.Page("pages/login.py", title="Login")
-logout_pg = st.Page("pages/logout.py", title="Logout")
 adm_settings = st.Page("pages/settings.py", title="Settings")
 
+# ============================================================================
+# NAVIGATION ROUTING
+# ============================================================================
 if st.session_state.get("auth_is_authenticated"):
     # Build navigation based on role
     nav_config = {
@@ -55,14 +61,24 @@ else:
     })
 
 
+# ============================================================================
+# TRACK PAGE VISIT
+# ============================================================================
 current_title = pg.title if hasattr(pg, "title") else None
 
-# Track page visit
 if current_title:
     track_page_visit(current_title)
 
+
+# ============================================================================
+# DEBUG: SESSION STATE (remove in production)
+# ============================================================================
 with st.sidebar:
     st.json(st.session_state, expanded=False)
 
+
+# ============================================================================
+# EXECUTE PAGE
+# ============================================================================
 st.session_state.app_main_rerun_counter += 1
 pg.run()

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from app.services.auth import require_login
+from app.services.auth_guard import require_login
 
 require_login()
 
