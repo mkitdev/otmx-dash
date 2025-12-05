@@ -12,7 +12,7 @@ MOCK_CSV = DATA_DIR / "mock_data_produk.csv"
 
 
 @st.cache_data(ttl=timedelta(minutes=10), show_spinner="Memuat data produk...")
-def get_product_data() -> pd.DataFrame:
+def get_product_mcok_data() -> pd.DataFrame:
     """Load + normalisasi data produk langsung via DuckDB.
 
     UI layer hanya menerima hasil akhir, tidak ada transform di luar.

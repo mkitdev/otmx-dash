@@ -7,7 +7,7 @@ import streamlit_shadcn_ui as ui
 
 from app.core.mlog import log_user_event
 from app.services.auth_guard import require_login
-from app.services.srv_product import get_product_data
+from app.services.sql_product import get_product_data
 
 require_login()
 
