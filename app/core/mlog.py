@@ -81,6 +81,7 @@ def log_user_event(
     event: str,
     user_id: str = "guest",
     page: str = "",
+    message: str = "",
     **kwargs,
 ):
     """Use this logging for user events.
@@ -91,6 +92,13 @@ def log_user_event(
     - button click
     - filter change
     - refresh
+
+    Args:
+        event: Event type (e.g., 'page_visit', 'login')
+        user_id: User identifier
+        page: Current page context
+        message: Detailed message to log (optional)
+        **kwargs: Additional context to bind
     """
     logger.bind(
         type="user",
@@ -98,4 +106,4 @@ def log_user_event(
         user_id=user_id,
         page=page,
         **kwargs,
-    ).info(event)
+    ).info(message or event)
