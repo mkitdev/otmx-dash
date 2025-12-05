@@ -1,6 +1,7 @@
 import streamlit as st
 
-from app.services.auth import init_auth_state, log_user_event
+from app.services.auth import init_auth_state
+from app.services.tracking import track_page_visit
 
 st.set_page_config(
     page_title="Otmx Dash",
@@ -49,18 +50,9 @@ current_title = pg.title if hasattr(pg, "title") else None
 if "current_page" not in st.session_state:
     st.session_state.current_page = None
 
-if current_title != st.session_state.current_page:
-    user = st.session_state.get("auth_username", "guest")
-    role = st.session_state.get("auth_user_role", "none")
-    log_user_event(
-        event="page_visit",
-        user_id=user,
-        page=current_title if current_title is not None else "",
-        referrer=st.session_state.current_page or "start",
-        message=f"current User: {user} (role: {role}) Visited page :{current_title}",
-    )
-
-    st.session_state.current_page = current_title
+# Track page visit
+if current_title:
+    track_page_visit(current_title)
 
 with st.sidebar:
     st.json(st.session_state)
