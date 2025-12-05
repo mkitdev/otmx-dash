@@ -10,6 +10,9 @@ st.set_page_config(
 
 init_auth_state()
 
+# this is the counter to track app_reruns
+if "app_rerun_counter" not in st.session_state:
+    st.session_state.app_rerun_counter = 0
 
 login_pg = st.Page("pages/login.py", title="Login")
 logout_pg = st.Page("pages/logout.py", title="Logout")
@@ -60,5 +63,5 @@ if current_title != st.session_state.current_page:
 with st.sidebar:
     st.json(st.session_state)
 
-
+st.session_state.app_rerun_counter += 1
 pg.run()
