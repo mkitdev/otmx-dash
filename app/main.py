@@ -62,7 +62,7 @@ if current_title:
     track_page_visit(current_title)
 
 with st.sidebar:
-    st.json(st.session_state)
+    st.json(st.session_state, expanded=False)
 
 st.session_state.app_main_rerun_counter += 1
 pg.run()

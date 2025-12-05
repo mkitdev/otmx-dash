@@ -7,9 +7,7 @@ from app.services.srv_product import get_product_data
 
 require_login()
 
-# ============================================================================
-# STATE INITIALIZATION (sesuai guide: flat keys, di awal file)
-# ============================================================================
+
 if "produk_df" not in st.session_state:
     st.session_state.produk_df = None
 
@@ -61,7 +59,7 @@ with st.sidebar:
         label="📥 Muat Data Produk",
         on_click=on_load_data_produk,
         type="primary",
-        use_container_width=True,
+        width="stretch",
         disabled=st.session_state.produk_is_loading,
     )
 
@@ -75,7 +73,6 @@ with st.sidebar:
 # MAIN: RENDER DATA HANYA JIKA SUDAH DI-LOAD
 # ============================================================================
 if st.session_state.produk_is_loaded and st.session_state.produk_df is not None:
-    # Guard: pastikan data tersedia
     df = st.session_state.produk_df
 
     # Display info
@@ -85,7 +82,10 @@ if st.session_state.produk_is_loaded and st.session_state.produk_df is not None:
 
     # Display data
     st.subheader("Data Produk")
-    st.dataframe(df, use_container_width=True, height=400)
+    st.dataframe(
+        data=df,
+        width="stretch",
+    )
 
 else:
     # State: data belum di-load
