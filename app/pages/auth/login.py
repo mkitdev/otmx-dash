@@ -2,8 +2,8 @@
 
 import streamlit as st
 
+from app.pages.auth.auth_guard import get_current_user, init_auth_state, is_auth_enabled
 from app.services.auth import get_default_user, validate_credentials
-from app.services.auth_guard import get_current_user, init_auth_state, is_auth_enabled
 
 st.set_page_config(page_title="Login", layout="centered")
 

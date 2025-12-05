@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-from app.services.auth_guard import require_login
+from app.pages.auth.auth_guard import require_login
 from app.services.srv_product import get_product_data
 
 require_login()

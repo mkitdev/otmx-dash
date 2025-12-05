@@ -1,6 +1,6 @@
 import streamlit as st
 
-from app.services.auth_guard import init_auth_state
+from app.pages.auth.auth_guard import init_auth_state
 from app.services.tracking import track_page_visit
 
 st.set_page_config(
@@ -32,8 +32,8 @@ if "app_main_rerun_counter" not in st.session_state:
 # ============================================================================
 # PAGE DEFINITIONS
 # ============================================================================
-login_pg = st.Page("pages/login.py", title="Login")
-logout_pg = st.Page("pages/logout.py", title="Logout")
+login_pg = st.Page("pages/auth/login.py", title="Login")
+logout_pg = st.Page("pages/auth/logout.py", title="Logout")
 landing = st.Page("pages/landing.py", title="Home", default=True)
 produk = st.Page("pages/produk.py", title="Produk")
 reseller = st.Page("pages/reseller.py", title="Reseller")
