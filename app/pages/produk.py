@@ -136,7 +136,7 @@ def render_statitics_ui():
                 width="stretch",
                 hide_index=False,
             )
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(spec=3)
         with col1:
             ui.card(
                 title="Total Operator",
@@ -145,9 +145,15 @@ def render_statitics_ui():
             ).render()
         with col2:
             ui.card(
-                title="Total Produk",
-                content=str(df["prd_kode"].nunique()),
-                description="Jumlah produk yang berstatus aktif",
+                title="Total Operator Tersedia",
+                content=str(len(df[df["opr_status"] == "available"])),
+                description="Jumlah operator yang berstatus tersedia",
+            ).render()
+        with col3:
+            ui.card(
+                title="Total Operator Tidak Tersedia",
+                content=str(len(df[df["opr_status"] == "unavailable"])),
+                description="Jumlah operator yang berstatus tidak tersedia",
             ).render()
 
 
