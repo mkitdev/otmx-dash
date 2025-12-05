@@ -7,6 +7,7 @@ requires-python = ">=3.13"
 dependencies = [
     "loguru-config>=0.1.0",
     "streamlit>=1.52.0",
+    "streamlit-shadcn-ui>=0.1.19",
 ]
 authors = [
 {name = "Hasan Maki", email = "hasanmaki.ahmad@gmail.com"}
@@ -14,6 +15,13 @@ authors = [
 
 [tool.uv]
 package = true
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["app"]
 
 [dependency-groups]
 dev = [
@@ -24,7 +32,7 @@ dev = [
 builtins = ["_"]
 fix = true
 show-fixes = true
-src = ["app", "tests"]
+src = ["."]
 target-version = "py313"
 line-length = 88
 lint.fixable = ["ALL"]
@@ -84,7 +92,7 @@ skip-magic-trailing-comma = false
 
 
 [tool.pyright]
-include = ["app"]
+include = ["."]
 ignore = ["**/typings"]
 exclude = [
     ".*",
