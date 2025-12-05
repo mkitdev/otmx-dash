@@ -63,9 +63,6 @@ login_pg = st.Page(login_page, title="Login")
 logout_pg = st.Page(logout_page, title="Logout")
 
 
-# =========================
-# NAVIGATION
-# =========================
 if st.session_state.logged_in:
     pg = st.navigation({
         "Welcome": [landing],
@@ -78,9 +75,6 @@ else:
     })
 
 
-# =========================
-# PAGE TRACKING (SETELAH NAVIGATION DIPASTIKAN)
-# =========================
 current_title = pg.title if hasattr(pg, "title") else None
 
 if current_title != st.session_state.current_page:
