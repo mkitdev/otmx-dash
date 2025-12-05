@@ -4,6 +4,10 @@ from pathlib import Path
 
 import streamlit as st
 
+from app.services.auth import require_login
+
+require_login()
+
 
 @st.cache_data
 def load_readme() -> str:
