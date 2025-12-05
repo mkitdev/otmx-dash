@@ -99,14 +99,14 @@ with st.sidebar:
         on_click=on_load_data_produk,
         type="primary",
         disabled=st.session_state.produk_is_loading,
-        use_container_width=True,
+        width="stretch",
     )
 
     st.button(
         label="🗑️ Clear Cache",
         on_click=on_clear_cache,
         type="secondary",
-        use_container_width=True,
+        width="stretch",
     )
 
     if st.session_state.produk_is_loading:
@@ -124,28 +124,19 @@ with st.sidebar:
 
 # MAIN CONTENT
 
-if st.session_state.produk_is_loaded:
-    # Get data dari cache (bukan dari state)
-    df = get_product_data()
 
-    if df.empty:
-        st.warning("Data produk kosong")
-    else:
-        # raw data expander
+def render_statitics_ui():
+    """Render statistik produk dalam bentuk cards."""
+    with st.container():
         with st.expander(
-            label="Lihat Data Produk Mentah", expanded=False, width="stretch", icon="🗃️"
+            label="Lihat Statistik Produk", expanded=False, width="stretch"
         ):
             st.dataframe(
                 data=df,
                 width="stretch",
-                hide_index=True,
+                hide_index=False,
             )
-
-        # Statistics
-        (
-            col1,
-            col2,
-        ) = st.columns(2)
+        col1, col2 = st.columns(2)
         with col1:
             ui.card(
                 title="Total Operator",
@@ -158,6 +149,17 @@ if st.session_state.produk_is_loaded:
                 content=str(df["prd_kode"].nunique()),
                 description="Jumlah produk yang berstatus aktif",
             ).render()
+
+
+if st.session_state.produk_is_loaded:
+    # Get data dari cache (bukan dari state)
+    df = get_product_data()
+
+    if df.empty:
+        st.warning("Data produk kosong")
+    else:
+        render_statitics_ui()
+
 
 else:
     st.info("👇 Klik tombol **Muat Data Produk** di sidebar untuk memulai.")
