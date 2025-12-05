@@ -55,7 +55,7 @@ if current_title != st.session_state.current_page:
         user_id=st.session_state.get("auth_username", "guest"),
         page=current_title if current_title is not None else "",
         referrer=st.session_state.current_page or "start",
-        message=f"🔗 Visited {current_title}",
+        message=f"current User: {st.session_state.get('auth_username', 'guest')} Visited page :{current_title}",
     )
 
     st.session_state.current_page = current_title
