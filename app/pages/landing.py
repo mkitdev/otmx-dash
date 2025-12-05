@@ -1,49 +1,71 @@
-"""ini sample landing page. default ketika user berhasil login."""
+"""Landing page - displays project README and welcome information."""
+
+from pathlib import Path
 
 import streamlit as st
 
-_STREAM_CONTENT = """
-## About oto-dashboard
 
-oto-dashboard is designed to monitor reseller performance and sales metrics for otomax,
-a business focused on selling internet data packages through resellers across Indonesia.
-
-## Features
-- **Reseller Performance Monitoring** - Track key metrics and KPIs
-- **Sales Analysis** - Analyze sales trends and patterns
-- **Data-Driven Insights** - Leverage visualizations for better decisions
-- **Interactive Dashboards** - Responsive and dynamic data exploration
-
-## Getting Started
-To get started, please log in using the sidebar. Once authenticated, you will have access to various
-reports and analytics tailored to help make data-driven decisions.
-
-We hope you enjoy using oto-dashboard!
-"""
+@st.cache_data
+def load_readme() -> str:
+    """Load README.md content from project root."""
+    readme_path = Path(__file__).parent.parent.parent / "README.md"
+    if readme_path.exists():
+        return readme_path.read_text(encoding="utf-8")
+    return "README file not found."
 
 
 def render_landing_page():
-    """Render landing page with greeting shown only once per session.
-
-    The streaming animation and welcome toast only appear on the first
-    visit to the landing page. Subsequent visits show static content.
-    """
-    st.header("Welcome to oto-dashboard!")
+    """Render landing page with README content and welcome info."""
+    # Header with greeting
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.header("🦈 Welcome to Otomax Dashboard")
+    with col2:
+        st.write("")  # Spacing
 
     st.markdown(
         "An application built with Streamlit to monitor reseller performance "
-        "and drive data-driven decisions for otomax."
+        "and drive data-driven decisions for **otomax**."
     )
 
-    # Show content with st.markdown only
-    st.markdown(_STREAM_CONTENT)
-
-    # Always show these info blocks
-    st.info(
-        "💡 Use the sidebar navigation to explore different reports after logging in."
-    )
-    st.success("✨ Thank you for using oto-dashboard!")
     st.divider()
+
+    # Load and display README content
+    readme_content = load_readme()
+
+    # Display README but skip mermaid diagrams (Streamlit doesn't render them natively)
+    lines = readme_content.split("\n")
+    filtered_lines = []
+    skip_mermaid = False
+
+    for line in lines:
+        if line.strip().startswith("```mermaid"):
+            skip_mermaid = True
+            filtered_lines.append(
+                "\n> 📊 *Diagram view not supported in Streamlit - view in GitHub for visual representation*\n"
+            )
+            continue
+        elif line.strip().startswith("```") and skip_mermaid:
+            skip_mermaid = False
+            continue
+        elif not skip_mermaid:
+            filtered_lines.append(line)
+
+    filtered_content = "\n".join(filtered_lines)
+    st.markdown(filtered_content)
+
+    st.divider()
+
+    # Info boxes
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.info("💡 **Pro Tip**: Use sidebar to navigate between different reports")
+    with col2:
+        st.success(
+            "✨ **Data-Driven**: Make informed decisions with real-time insights"
+        )
+    with col3:
+        st.warning("📊 **Interactive**: Explore and analyze data at your own pace")
 
 
 render_landing_page()
