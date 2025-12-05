@@ -67,15 +67,12 @@ Berdasarkan manfaat dan tools yang dijelaskan dalam artikel (seperti **Business 
 ## Manfaat DDDM (Data-Driven Decision Making)
 
 ```mermaid
-quadrantChart
-    title Manfaat Utama DDDM
-    x-axis Dampak Negatif --> Dampak Positif
-    y-axis Jangka Pendek --> Jangka Panjang
-    Customer Experience: 0.8, 0.7
-    Strategic Planning: 0.75, 0.9
-    Growth Opportunities: 0.7, 0.85
-    Operational Efficiency: 0.85, 0.8
-    Accurate Forecasting: 0.8, 0.75
+pie title Manfaat Utama DDDM
+    "Customer Experience" : 20
+    "Strategic Planning" : 22
+    "Growth Opportunities" : 19
+    "Operational Efficiency" : 20
+    "Accurate Forecasting" : 19
 ```
 
 ### Kelima Manfaat Utama
