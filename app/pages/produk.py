@@ -1,48 +1,26 @@
 """Halaman Produk dengan lazy loading pattern."""
 
-from datetime import datetime
-
 import streamlit as st
 import streamlit_shadcn_ui as ui
 
 from app.core.mlog import log_user_event
 from app.services.auth.adapter import get_current_user, get_current_user_role
 from app.services.auth.guard import require_login
+from app.services.produk import get_produk_state, save_produk_state
 from app.services.sql_product import get_product_data
 
 require_login()
 
 
-def _init_produk_state():
-    """Initialize flags only. Data loaded from cache, not stored in state."""
-    if "produk_is_loaded" not in st.session_state:
-        st.session_state.produk_is_loaded = False
-
-    if "produk_is_loading" not in st.session_state:
-        st.session_state.produk_is_loading = False
-
-    if "produk_error" not in st.session_state:
-        st.session_state.produk_error = None
-
-    if "produk_last_update" not in st.session_state:
-        st.session_state.produk_last_update = None
-
-
-_init_produk_state()
-
-
 def on_load_data_produk():
-    """Callback: Load data produk dari cache, update flag.
+    """Callback: Load data produk dari cache, update state.
 
-    Flow: Clear state → Load from cache → Update flags & timestamp
-    Jangan render UI di sini.
+    Flow: Get state → Start loading → Load from cache → Update state
     """
-    # Clear previous state
-    st.session_state.produk_is_loaded = False
-    st.session_state.produk_error = None
+    state = get_produk_state()
+    state.start_loading()
+    save_produk_state(state)
 
-    # Start loading
-    st.session_state.produk_is_loading = True
     log_user_event(
         event="user load_data_produk",
         user_id=get_current_user() or "user",
@@ -51,33 +29,34 @@ def on_load_data_produk():
     )
     try:
         get_product_data()
-
-        # Update state
-        st.session_state.produk_is_loaded = True
-        st.session_state.produk_last_update = datetime.now()
+        state = get_produk_state()
+        state.load_success()
+        save_produk_state(state)
 
     except FileNotFoundError as e:
-        st.session_state.produk_error = f"File tidak ditemukan: {e!s}"
-        st.session_state.produk_is_loaded = False
+        state = get_produk_state()
+        state.load_failed(f"File tidak ditemukan: {e!s}")
+        save_produk_state(state)
 
     except ValueError as e:
-        st.session_state.produk_error = f"Data tidak valid: {e!s}"
-        st.session_state.produk_is_loaded = False
+        state = get_produk_state()
+        state.load_failed(f"Data tidak valid: {e!s}")
+        save_produk_state(state)
 
     except Exception as e:
-        st.session_state.produk_error = f"Error: {e!s}"
-        st.session_state.produk_is_loaded = False
-
-    finally:
-        st.session_state.produk_is_loading = False
+        state = get_produk_state()
+        state.load_failed(f"Error: {e!s}")
+        save_produk_state(state)
 
 
 def on_clear_cache():
-    """Callback: Clear cache data produk, reset state flags."""
+    """Callback: Clear cache data produk & reset state."""
     get_product_data.clear()
-    st.session_state.produk_is_loaded = False
-    st.session_state.produk_error = None
-    st.session_state.produk_last_update = None
+
+    state = get_produk_state()
+    state.clear_cache()
+    save_produk_state(state)
+
     log_user_event(
         event="user clear_cache_produk",
         user_id=get_current_user() or "user",
@@ -86,61 +65,53 @@ def on_clear_cache():
     )
 
 
+# INITIALIZE STATE
+state = get_produk_state()
+
 # SIDEBAR CONTROLS
-
-
 with st.sidebar:
     st.button(
         label="📥 Muat Data",
         on_click=on_load_data_produk,
         type="primary",
-        disabled=st.session_state.produk_is_loading,
-        width="stretch",
+        disabled=state.is_loading,
+        use_container_width=True,
     )
 
     st.button(
         label="🗑️ Clear Cache",
         on_click=on_clear_cache,
         type="secondary",
-        width="stretch",
+        use_container_width=True,
     )
 
-    if st.session_state.produk_is_loading:
+    if state.is_loading:
         st.spinner("Loading...")
 
-    if st.session_state.produk_error:
-        st.warning(st.session_state.produk_error)
+    if state.error:
+        st.warning(state.error)
 
-    # # Show last update time
-    # if st.session_state.produk_last_update:
-    #     st.caption(
-    #         f"Terakhir diperbarui: {st.session_state.produk_last_update.strftime('%H:%M:%S')}"
-    #     )
+    if state.last_update:
+        st.caption(f"Terakhir diperbarui: {state.last_update.strftime('%H:%M:%S')}")
 
 
 # MAIN CONTENT
-# UI HEADER
-
-with st.container(
-    horizontal=True,
-):
-    st.header(body="Data Produk", divider=True)
+st.header("Data Produk", divider=True)
 
 
 def render_statitics_ui():
     """Render statistik produk dalam bentuk cards."""
     with st.container():
         with st.expander(
-            label=f"list product with last update {st.session_state.produk_last_update.strftime('%H:%M:%S') if st.session_state.produk_last_update else 'N/A'}",
+            label=f"list product with last update {state.last_update.strftime('%H:%M:%S') if state.last_update else 'N/A'}",
             expanded=False,
-            width="stretch",
         ):
             st.dataframe(
                 data=df,
-                width="stretch",
+                use_container_width=True,
                 hide_index=False,
             )
-        col1, col2, col3 = st.columns(spec=3)
+        col1, col2, col3 = st.columns(3)
         with col1:
             ui.card(
                 title="Total Operator",
@@ -161,7 +132,7 @@ def render_statitics_ui():
             ).render()
 
 
-if st.session_state.produk_is_loaded:
+if state.is_loaded:
     # Get data dari cache (bukan dari state)
     df = get_product_data()
 
@@ -169,7 +140,6 @@ if st.session_state.produk_is_loaded:
         st.warning("Data produk kosong")
     else:
         render_statitics_ui()
-
 
 else:
     st.info("👇 Klik tombol **Muat Data Produk** di sidebar untuk memulai.")
