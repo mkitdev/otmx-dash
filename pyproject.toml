@@ -10,3 +10,107 @@ dependencies = [
 authors = [
 {name = "Hasan Maki", email = "hasanmaki.ahmad@gmail.com"}
 ]
+
+[tool.uv]
+package = true
+
+[dependency-groups]
+dev = [
+
+]
+
+[tool.ruff]
+builtins = ["_"]
+fix = true
+show-fixes = true
+src = ["app", "tests"]
+target-version = "py313"
+line-length = 88
+lint.fixable = ["ALL"]
+lint.unfixable = []
+lint.select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "D",   # pydocstyle (docstrings)
+    "ANN", # flake8-annotations (type hints)
+    "UP",  # pyupgrade (modern Python syntax)
+    "B",   # flake8-bugbear (common bugs)
+    "SIM", # flake8-simplify (simplify code)
+    "C90", # flake8-comprehensions (comprehension optimizations)
+    "T20", # flake8-type-checking (type checking)
+    "TRY", # flake8-try-except (try-except optimizations)
+    "RUF",  # ruff (general code quality)
+    "PERF", # ruff performance checks
+    "ARG",  # ruff argument checks
+    "PLC",  # ruff plugin checks
+    "N",   # ruff naming conventions
+]
+lint.ignore = [
+    "E501",    # panjang baris
+    "D100",    # docstring modul
+    "D104",    # docstring package
+    "D107",    # docstring __init__
+    "D101",    # docstring class
+    "D102",    # docstring method
+    "D105",    # docstring magic method
+    "ANN201",  # `cls`
+    "ANN202",  # `self`
+    "ANN401",  # Any
+    "ANN204",  # __init__ return
+    "ANN002",  # *args
+    "ANN003",  # **kwargs
+    "B008", # unused variable
+    "TRY003",  # try-except optimizations
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D", "ANN"]
+"scripts/*" = ["D100"]
+"__init__.py" = ["D104"]
+"_version.py" = ["D", "ANN", "E", "W", "F", "I", "UP", "B"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+docstring-code-line-length = 60
+skip-magic-trailing-comma = false
+
+
+[tool.pyright]
+include = ["app"]
+ignore = ["**/typings"]
+exclude = [
+    ".*",
+    "__*",
+    "**/typings",
+    "**/migrations",
+    "**/tests",
+    "**/venv",
+    "**/.venv",
+    "**/.env",
+    "**/.vscode",
+    "**/node_modules",
+    "**/__pycache__",
+    "**/*.egg-info",
+    "**/dist",
+    "**/*.pyi",
+    "${python.envPath}/Lib/",
+    "workspaceFolder/Lib/",
+    "**/Lib/",
+    "**/lib/",
+    ]
+
+typeCheckingMode = "standard"
+stubPath = "typings"
+typeshedPath = "typings"
+pythonPlatform = "Windows"
+pythonVersion = "3.13"
+reportMissingImports = "error"
+reportMissingModuleSource = "none"
+reportUnnecessaryTypeIgnoreComment = "information"

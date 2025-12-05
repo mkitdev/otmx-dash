@@ -1,6 +1,3 @@
-def main():
-    print("Hello from otmx-dash!")
+import streamlit as st
 
-
-if __name__ == "__main__":
-    main()
+st.write("Hello, Otomax Dash!")
