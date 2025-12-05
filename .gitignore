@@ -208,3 +208,4 @@ __marimo__/
 .github/
 .streamlit/config.toml
 .streamlit/secrets.toml
+.vscode/
