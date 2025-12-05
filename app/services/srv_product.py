@@ -22,13 +22,14 @@ def get_product_data() -> pd.DataFrame:
     Nanti ketika actual data siap (SQL Server), ganti function ini
     untuk query dari database.
     """
-    try:
-        if not MOCK_CSV.exists():
-            raise FileNotFoundError(f"Mock data tidak ditemukan: {MOCK_CSV}")
+    def _raise_if_not_exists(path):
+        if not path.exists():
+            raise FileNotFoundError(f"Mock data tidak ditemukan: {path}")
 
+    try:
+        _raise_if_not_exists(MOCK_CSV)
         df = pd.read_csv(MOCK_CSV)
         log_app(f"Loaded mock data produk: {len(df)} rows")
-
     except Exception as exc:
         logger.error(f"Error membaca mock data produk: {exc}")
         return pd.DataFrame()
