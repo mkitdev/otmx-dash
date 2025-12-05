@@ -7,6 +7,7 @@ AUTH_ENABLE = st.secrets.get("authentication", {}).get("enable", True)
 
 # Default user jika auth disabled (untuk development)
 DEFAULT_USER = "admin"
+# [ ] TODO: Fallback config ketika file secrets kosong atau tidak ada
 
 
 def init_auth_state():

@@ -7,13 +7,17 @@ st.set_page_config(
     page_title="Otmx Dash",
     page_icon=":shark:",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="auto",
     menu_items={
-        "About": "Aplikasi dashboard untuk Otomax",
-        "Get Help": "https://www.extremelycoolapp.com/help",
+        "About": "Aplikasi dashboard untuk Software Otomax",
+        "Get Help": "https://www.otomax-software.com/id",
+        "Report a bug": "https://wa.me/6285777076575",
     },
 )
-
+st.logo(
+    image=".streamlit/otomax_logo.png",
+    link="https://www.otomax-software.com/id",
+)
 init_auth_state()
 
 # this is the counter to track app_reruns
