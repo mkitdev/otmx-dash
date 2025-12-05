@@ -14,18 +14,12 @@ from app.services.auth.adapter import get_current_user
 st.set_page_config(page_title="Login", layout="centered")
 
 
-# ============================================================================
-# REDIRECT IF ALREADY AUTHENTICATED
-# ============================================================================
 auth = get_auth()
 if auth.is_authenticated:
     st.success(f"✅ Sudah login sebagai **{get_current_user()}**")
     st.stop()
 
 
-# ============================================================================
-# CALLBACK - LOGIN LOGIC
-# ============================================================================
 def on_login_submit(username: str, password: str):
     """Callback: Validate credentials & update state."""
     config = AuthConfig.instance()
@@ -56,9 +50,6 @@ def on_login_submit(username: str, password: str):
         st.error("❌ Username atau password salah")
 
 
-# ============================================================================
-# UI - LOGIN FORM
-# ============================================================================
 st.header("Login", divider=True)
 
 
