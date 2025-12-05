@@ -18,8 +18,8 @@ def track_page_visit(current_page: str) -> None:
     if current_page == st.session_state.current_page:
         return
 
-    user = st.session_state.get("auth_username", "guest")
-    role = st.session_state.get("auth_user_role", "none")
+    user = st.session_state.get("auth_username", "user")
+    role = st.session_state.get("auth_user_role", "user")
     referrer = st.session_state.current_page or "start"
 
     # Log page visit with full context
