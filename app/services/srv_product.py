@@ -13,7 +13,7 @@ MOCK_CSV = DATA_DIR / "mock_data_produk.csv"
 # [ ] TODO: Later migrate to SQL Server
 
 
-@st.cache_data(ttl=timedelta(minutes=10))
+@st.cache_data(ttl=timedelta(minutes=10), show_spinner="Memuat data produk...")
 def get_product_data() -> pd.DataFrame:
     """Load product data dari mock CSV.
 
