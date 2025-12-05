@@ -40,7 +40,7 @@ join operator as opr on prd.kode_operator = opr.kode
 # =========================
 
 
-def _transform_product_data(df_raw: pd.DataFrame) -> pd.DataFrame:
+def _transform_product_data(df_raw: pd.DataFrame) -> pd.DataFrame:  # noqa: ARG001
     """Normalisasi & business rule layer via DuckDB."""
     return duckdb.sql(
         """
