@@ -4,9 +4,8 @@ from services.auth import get_current_user, init_auth_state, login
 init_auth_state()
 
 st.set_page_config(page_title="Login", layout="centered")
-st.title("Login")
 
-
+st.header(body="Login", divider=True)
 # Jika sudah login, langsung redirect
 if st.session_state.get("auth_is_authenticated"):
     st.success(f"Sudah login sebagai {get_current_user()}")
