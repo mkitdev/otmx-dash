@@ -67,12 +67,27 @@ Berdasarkan manfaat dan tools yang dijelaskan dalam artikel (seperti **Business 
 ## Manfaat DDDM (Data-Driven Decision Making)
 
 ```mermaid
-pie title Manfaat Utama DDDM
-    "Customer Experience" : 20
-    "Strategic Planning" : 22
-    "Growth Opportunities" : 19
-    "Operational Efficiency" : 20
-    "Accurate Forecasting" : 19
+%% Quadrant Chart: Impact (Y) vs Time Horizon (X)
+%% Y-axis: Impact (Low to High), X-axis: Time Horizon (Short to Long Term)
+graph TD
+    subgraph High Impact
+        CE["Customer Experience"] ---|Short Term| Q1
+        SP["Strategic Planning"] ---|Long Term| Q2
+    end
+    subgraph Low Impact
+        OE["Operational Efficiency"] ---|Short Term| Q3
+        AF["Accurate Forecasting"] ---|Long Term| Q4
+        GO["Growth Opportunities"] ---|Medium Term| Q5
+    end
+    %% Positioning nodes to simulate quadrants (not to scale)
+    Q1((Q1<br/>High Impact<br/>Short Term))
+    Q2((Q2<br/>High Impact<br/>Long Term))
+    Q3((Q3<br/>Low Impact<br/>Short Term))
+    Q4((Q4<br/>Low Impact<br/>Long Term))
+    Q5((Q5<br/>Low Impact<br/>Medium Term))
+    %% Legend
+    classDef quadrant fill:#f9f,stroke:#333,stroke-width:2px;
+    class Q1,Q2,Q3,Q4,Q5 quadrant;
 ```
 
 ### Kelima Manfaat Utama
