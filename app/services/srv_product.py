@@ -22,13 +22,6 @@ def load_product_data() -> pd.DataFrame:
     """Load product data from csv with fallback to mock data."""
     try:
         return _read_csv(MOCK_CSV)
-    except FileNotFoundError:
-        logger.warning("data_produk.csv tidak ditemukan, fallback ke mock.")
-    except Exception as exc:
-        logger.error(f"Gagal muat data utama: {exc}")
-
-    try:
-        return _read_csv(MOCK_CSV)
     except Exception as exc:
         logger.error(f"Gagal muat mock data: {exc}")
         return pd.DataFrame()
