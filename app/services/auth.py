@@ -2,10 +2,11 @@ import streamlit as st
 
 from app.core.mlog import log_app, log_user_event
 
-USERNAME = st.secrets["accounts"]["username"]
-PASSWORD = st.secrets["accounts"]["password"]
-ROLE = st.secrets["accounts"]["role"]
+USERS = st.secrets.get("users", {})
 AUTH_ENABLE = st.secrets.get("authentication", {}).get("enable", True)
+
+# Default user jika auth disabled (untuk development)
+DEFAULT_USER = "admin"
 
 
 def init_auth_state():
@@ -19,30 +20,26 @@ def init_auth_state():
     if "auth_user_role" not in st.session_state:
         st.session_state.auth_user_role = None
 
+    # Track auth setup only once
+    if "auth_enabled" not in st.session_state:
+        log_app(f"Auth system initialized: enabled={AUTH_ENABLE}")
+        st.session_state.auth_enabled = AUTH_ENABLE
+
 
 def _is_auth_enabled() -> bool:
     """Check if authentication is enabled from secrets."""
-    return AUTH_ENABLE
+    return st.session_state.get("auth_enabled", AUTH_ENABLE)
 
 
-def _dev_force_login_as_guest():
-    """Force login as guest user (development only)."""
-    st.session_state.auth_username = "guest"
+def _dev_auto_login():
+    """Auto-login with default user when auth is disabled (development only)."""
+    user_data = USERS.get(DEFAULT_USER, {})
+    st.session_state.auth_username = user_data.get("username", DEFAULT_USER)
     st.session_state.auth_is_authenticated = True
-    st.session_state.auth_user_role = "guest"
+    st.session_state.auth_user_role = user_data.get("role", "user")
 
-    log_app("Auth disabled via config — auto login as guest")
-    log_user_event("login_bypass", user_id="guest")
-
-
-def _dev_force_login_with_secrets():
-    """Force login with credentials from secrets (auth disabled for dev)."""
-    st.session_state.auth_username = USERNAME
-    st.session_state.auth_is_authenticated = True
-    st.session_state.auth_user_role = ROLE
-
-    log_app("Auth disabled via config — auto login with secrets")
-    log_user_event("login_bypass", user_id=USERNAME)
+    log_app(f"Auth disabled — auto login as {DEFAULT_USER}")
+    log_user_event("login_bypass", user_id=DEFAULT_USER)
 
 
 def get_current_user() -> str | None:
@@ -60,20 +57,29 @@ def get_current_user_role() -> str | None:
 
 
 def login(username: str, password: str) -> bool:
-    """Authenticate user with given username and password."""
+    """Authenticate user with given username and password.
+
+    If auth is disabled: auto-login as default user (for development).
+    If auth is enabled: validate credentials against users in secrets.
+    """
+    # When auth is disabled, auto-login as default user
     if not _is_auth_enabled():
-        # When auth is disabled, use credentials from secrets (bypass login form)
-        _dev_force_login_with_secrets()
+        _dev_auto_login()
         return True
 
-    if username == USERNAME and password == PASSWORD:
-        st.session_state.auth_username = username
-        st.session_state.auth_is_authenticated = True
-        st.session_state.auth_user_role = ROLE
+    # When auth is enabled, validate credentials from users in secrets
+    for user_data in USERS.values():
+        if username == user_data.get("username") and password == user_data.get(
+            "password"
+        ):
+            st.session_state.auth_username = username
+            st.session_state.auth_is_authenticated = True
+            st.session_state.auth_user_role = user_data.get("role", "user")
 
-        log_user_event("login_success", user_id=username)
-        return True
+            log_user_event("login_success", user_id=username)
+            return True
 
+    # Login failed
     st.session_state.auth_username = None
     st.session_state.auth_is_authenticated = False
     st.session_state.auth_user_role = None
