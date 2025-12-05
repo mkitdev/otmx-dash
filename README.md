@@ -71,11 +71,11 @@ quadrantChart
     title Manfaat Utama DDDM
     x-axis Dampak Negatif --> Dampak Positif
     y-axis Jangka Pendek --> Jangka Panjang
-    Customer Experience: 0.8, 0.7
-    Strategic Planning: 0.75, 0.9
-    Growth Opportunities: 0.7, 0.85
-    Operational Efficiency: 0.85, 0.8
-    Accurate Forecasting: 0.8, 0.75
+    Customer Experience, 0.8, 0.7
+    Strategic Planning, 0.75, 0.9
+    Growth Opportunities, 0.7, 0.85
+    Operational Efficiency, 0.85, 0.8
+    Accurate Forecasting, 0.8, 0.75
 ```
 
 ### Kelima Manfaat Utama
