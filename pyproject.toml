@@ -6,6 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "loguru-config>=0.1.0",
+    "pyodbc>=5.3.0",
+    "sqlalchemy>=2.0.44",
     "streamlit>=1.52.0",
     "streamlit-shadcn-ui>=0.1.19",
 ]
