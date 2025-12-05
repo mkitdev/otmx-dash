@@ -7,6 +7,11 @@ st.set_page_config(
     page_title="Otmx Dash",
     page_icon=":shark:",
     layout="wide",
+    initial_sidebar_state="collapsed",
+    menu_items={
+        "About": "Aplikasi dashboard untuk Otomax",
+        "Get Help": "https://www.extremelycoolapp.com/help",
+    },
 )
 
 init_auth_state()
@@ -47,8 +52,6 @@ else:
 
 
 current_title = pg.title if hasattr(pg, "title") else None
-if "current_page" not in st.session_state:
-    st.session_state.current_page = None
 
 # Track page visit
 if current_title:
