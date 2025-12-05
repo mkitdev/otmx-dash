@@ -133,6 +133,51 @@ def log_app(message: str, **kwargs):
     logger.bind(**kwargs).debug(message)
 
 
+def log_page_visit(page_title: str, user_id: str = "guest", **kwargs):
+    """Log user page visit — track posisi user di aplikasi.
+
+    Args:
+        page_title (str): Nama/title page yang dibuka
+        user_id (str): User identifier. Default "guest".
+        **kwargs: Additional context (timestamp, referrer, dll)
+
+    Example:
+        >>> log_page_visit(
+        ...     "Produk",
+        ...     user_id="user123",
+        ...     referrer="Home",
+        ... )
+    """
+    logger.bind(user_id=user_id, page=page_title, **kwargs).info(
+        "📋 User visited page: {}", page_title
+    )
+
+
+def log_user_activity(
+    activity_type: str, user_id: str = "guest", page: str = "", **kwargs
+):
+    """Log detailed user activity — general purpose activity tracking.
+
+    Args:
+        activity_type (str): Tipe activity (e.g., 'button_click', 'search', 'filter')
+        user_id (str): User identifier. Default "guest".
+        page (str): Current page. Default "".
+        **kwargs: Additional context (target, value, duration, dll)
+
+    Example:
+        >>> log_user_activity(
+        ...     "button_click",
+        ...     user_id="user123",
+        ...     page="Produk",
+        ...     target="filter_by_category",
+        ...     value="Electronics",
+        ... )
+    """
+    logger.bind(user_id=user_id, page=page, activity=activity_type, **kwargs).info(
+        "🔔 User activity: {}", activity_type
+    )
+
+
 def setup_logging(to_file: bool = True):
     """Setup loguru dengan dual logging: user + app perspective.
 
