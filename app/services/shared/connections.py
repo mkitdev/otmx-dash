@@ -1,4 +1,4 @@
-"""Database connection management."""
+"""Database connection management — shared utilities."""
 
 import streamlit as st
 from loguru import logger

@@ -5,7 +5,7 @@ import pandas as pd
 import streamlit as st
 from loguru import logger
 
-from app.core.db_manager import get_conn
+from app.services.shared import get_conn
 
 # =========================
 # RAW SQL (TANPA LOGIC BISNIS)
