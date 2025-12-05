@@ -1,4 +1,3 @@
-# Intercept standard logging ke loguru
 import functools
 import inspect
 import logging
@@ -28,7 +27,7 @@ class InterceptHandler(logging.Handler):
 def logger_wraps(*, entry: bool = True, exit: bool = True, level: str = "DEBUG"):
     """Decorator untuk wrap function dengan entry/exit logging."""
 
-    def wrapper(func):
+    def wrapper(func):  # noqa: ANN001
         @functools.wraps(func)
         def wrapped(*args, **kwargs):
             if entry:
