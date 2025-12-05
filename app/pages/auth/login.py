@@ -2,13 +2,17 @@
 
 import streamlit as st
 
-from app.services.auth.adapter import get_auth, get_current_user, save_auth
-from app.services.auth.config import AuthConfig
-from app.services.auth_credentials import get_default_user, validate_credentials
+from app.services.auth import (
+    AuthConfig,
+    get_auth,
+    get_default_user,
+    save_auth,
+    validate_credentials,
+)
+from app.services.auth.adapter import get_current_user
 
 st.set_page_config(page_title="Login", layout="centered")
 
-st.set_page_config(page_title="Login", layout="centered")
 
 # ============================================================================
 # REDIRECT IF ALREADY AUTHENTICATED

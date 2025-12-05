@@ -1,7 +1,7 @@
 """Authentication credentials validation - pure functions.
 
-State management is handled at UI layer (pages), not here.
-This module only validates credentials and returns data.
+Handles credential validation and dev mode user lookup.
+No state management, no Streamlit dependencies.
 """
 
 from app.core.mlog import log_user_event
