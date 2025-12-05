@@ -2,30 +2,44 @@
 
 import streamlit as st
 
-from app.pages.auth.auth_guard import require_login
+from app.services.auth_guard import require_login
 from app.services.srv_product import get_product_data
 
+# ============================================================================
+# GUARD - REQUIRE LOGIN
+# ============================================================================
 require_login()
 
 
-if "produk_df" not in st.session_state:
-    st.session_state.produk_df = None
+# ============================================================================
+# STATE INITIALIZATION
+# ============================================================================
+def _init_produk_state():
+    """Initialize session state untuk produk page."""
+    if "produk_df" not in st.session_state:
+        st.session_state.produk_df = None
 
-if "produk_is_loaded" not in st.session_state:
-    st.session_state.produk_is_loaded = False
+    if "produk_is_loaded" not in st.session_state:
+        st.session_state.produk_is_loaded = False
 
-if "produk_is_loading" not in st.session_state:
-    st.session_state.produk_is_loading = False
+    if "produk_is_loading" not in st.session_state:
+        st.session_state.produk_is_loading = False
 
-if "produk_error" not in st.session_state:
-    st.session_state.produk_error = None
+    if "produk_error" not in st.session_state:
+        st.session_state.produk_error = None
+
+
+_init_produk_state()
 
 
 # ============================================================================
 # CALLBACK (hanya ubah state, tidak render UI)
 # ============================================================================
 def on_load_data_produk():
-    """Callback: Load data produk ke session state. Jangan render UI di sini."""
+    """Callback: Load data produk ke session state.
+
+    Hanya ubah state, jangan render UI di sini.
+    """
     st.session_state.produk_is_loading = True
     st.session_state.produk_error = None
 
@@ -52,14 +66,16 @@ def on_load_data_produk():
 st.title("📦 Produk")
 
 # ============================================================================
-# SIDEBAR: BUTTON TO LOAD DATA (lazy loading trigger)
+# SIDEBAR CONTROLS
 # ============================================================================
 with st.sidebar:
+    st.subheader("Kontrol")
+
     st.button(
         label="📥 Muat Data Produk",
         on_click=on_load_data_produk,
         type="primary",
-        width="stretch",
+        use_container_width=True,
         disabled=st.session_state.produk_is_loading,
     )
 
@@ -70,23 +86,23 @@ with st.sidebar:
         st.error(st.session_state.produk_error)
 
 # ============================================================================
-# MAIN: RENDER DATA HANYA JIKA SUDAH DI-LOAD
+# MAIN CONTENT
 # ============================================================================
 if st.session_state.produk_is_loaded and st.session_state.produk_df is not None:
     df = st.session_state.produk_df
 
-    # Display info
+    # Statistics
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric("Total Produk", len(df))
 
-    # Display data
+    # Data table
     st.subheader("Data Produk")
     st.dataframe(
         data=df,
-        width="stretch",
+        use_container_width=True,
+        height=400,
     )
 
 else:
-    # State: data belum di-load
     st.info("👇 Klik tombol **Muat Data Produk** di sidebar untuk memuat data.")

@@ -1,6 +1,6 @@
 import streamlit as st
 
-from app.pages.auth.auth_guard import init_auth_state
+from app.services.auth_guard import init_auth_state
 from app.services.tracking import track_page_visit
 
 st.set_page_config(
