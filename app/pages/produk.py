@@ -5,6 +5,7 @@ from datetime import datetime
 import streamlit as st
 import streamlit_shadcn_ui as ui
 
+from app.core.mlog import log_user_event
 from app.services.auth_guard import require_login
 from app.services.srv_product import get_product_data
 
@@ -23,7 +24,7 @@ def _init_produk_state():
         st.session_state.produk_error = None
 
     if "produk_last_update" not in st.session_state:
-        st.session_state.produk_last_update = None  # Track last load time
+        st.session_state.produk_last_update = None
 
 
 _init_produk_state()
@@ -41,9 +42,14 @@ def on_load_data_produk():
 
     # Start loading
     st.session_state.produk_is_loading = True
-
+    log_user_event(
+        event="user load_data_produk",
+        user_id=st.session_state.get("auth_username", "user"),
+        role=st.session_state.get("auth_user_role", "user"),
+        message="user Load Data Produk",
+    )
     try:
-        get_product_data()  # From cache, service validates data
+        get_product_data()
 
         # Update state
         st.session_state.produk_is_loaded = True
@@ -65,7 +71,22 @@ def on_load_data_produk():
         st.session_state.produk_is_loading = False
 
 
+def on_clear_cache():
+    """callback: Clear cache data produk."""
+    get_product_data.clear()
+    st.session_state.produk_is_loaded = False
+    st.session_state.produk_error = None
+    st.session_state.produk_last_update = None
+    log_user_event(
+        event="user clear_cache_produk",
+        user_id=st.session_state.get("auth_username", "user"),
+        role=st.session_state.get("auth_user_role", "user"),
+        message="user Clear Cache Produk",
+    )
+
+
 # UI HEADER
+
 
 st.header("Data Produk", divider=True)
 
@@ -73,13 +94,19 @@ st.header("Data Produk", divider=True)
 # SIDEBAR CONTROLS
 
 with st.sidebar:
-    st.subheader("Kontrol")
-
     st.button(
-        label="📥 Muat Data Produk",
+        label="📥 Muat Data",
         on_click=on_load_data_produk,
         type="primary",
         disabled=st.session_state.produk_is_loading,
+        use_container_width=True,
+    )
+
+    st.button(
+        label="🗑️ Clear Cache",
+        on_click=on_clear_cache,
+        type="secondary",
+        use_container_width=True,
     )
 
     if st.session_state.produk_is_loading:
@@ -104,33 +131,33 @@ if st.session_state.produk_is_loaded:
     if df.empty:
         st.warning("Data produk kosong")
     else:
-        # Statistics
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            ui.card(
-                title="Total Produk",
-                content=str(len(df)),
-                description="Jumlah total produk dalam sistem",
-            ).render()
-        with col2:
-            ui.card(
-                title="Aktif",
-                content=str(len(df[df["prd_stts_aktif"] == 1])),
-                description="Jumlah produk yang berstatus aktif",
-            ).render()
-        with col3:
-            ui.card(
-                title="Gangguan",
-                content=str(len(df[df["prd_stts_gangguan"] == 1])),
-                description="Jumlah produk yang berstatus gangguan",
-            ).render()
-
-        with st.expander("Lihat Data Produk Mentah"):
+        # raw data expander
+        with st.expander(
+            label="Lihat Data Produk Mentah", expanded=False, width="stretch", icon="🗃️"
+        ):
             st.dataframe(
                 data=df,
                 width="stretch",
                 hide_index=True,
             )
+
+        # Statistics
+        (
+            col1,
+            col2,
+        ) = st.columns(2)
+        with col1:
+            ui.card(
+                title="Total Operator",
+                content=str(df["opr_kode"].nunique()),
+                description="Jumlah operator unik dalam sistem",
+            ).render()
+        with col2:
+            ui.card(
+                title="Total Produk",
+                content=str(df["prd_kode"].nunique()),
+                description="Jumlah produk yang berstatus aktif",
+            ).render()
 
 else:
     st.info("👇 Klik tombol **Muat Data Produk** di sidebar untuk memulai.")
