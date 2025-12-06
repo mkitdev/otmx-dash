@@ -1,5 +1,8 @@
 """Halaman Produk dengan lazy loading pattern."""
 
+import datetime
+from typing import Any
+
 import streamlit as st
 import streamlit_shadcn_ui as ui
 
@@ -112,21 +115,22 @@ with st.sidebar:
         st.warning(state.error)
 
 
-# MAIN CONTENT
-st.header("Data Produk", divider=True)
-ui.badges(badge_list=[("SQL Server Data", "default")])
+def render_header():
+    st.header("Data Produk", divider=True)
+    ui.badges(badge_list=[("SQL Server Data", "default")])
 
 
-def render_statistics_ui():
-    """Render statistik produk dalam bentuk cards & tables."""
-    # Get raw data untuk card metrics
-    df_raw = get_product_data_cached()
+def render_statistics_ui(df: Any) -> None:
+    """Render statistik produk dalam bentuk cards & tables.
 
+    Args:
+        df: DataFrame produk yang sudah di-cache
+    """
     # Card metrics - inline count functions
     col1, col2, col3 = st.columns(3, gap="small")
 
     with col1:
-        total_operator = count_total_unique_operator(df_raw)
+        total_operator = count_total_unique_operator(df)
         metric_card_custom(
             title="Operator",
             content=str(total_operator),
@@ -135,16 +139,7 @@ def render_statistics_ui():
         )
 
     with col2:
-        total_catatan = count_total_unique_catatan(df_raw)
-        metric_card_custom(
-            title="Catatan",
-            content=str(total_catatan),
-            description="Total Catatan",
-            color="orange",
-        )
-
-    with col3:
-        total_produk = count_total_unique_produk(df_raw)
+        total_produk = count_total_unique_produk(df)
         metric_card_custom(
             title="Produk",
             content=str(total_produk),
@@ -152,22 +147,48 @@ def render_statistics_ui():
             color="green",
         )
 
+    with col3:
+        total_catatan = count_total_unique_catatan(df)
+        metric_card_custom(
+            title="Catatan",
+            content=str(total_catatan),
+            description="Total Catatan",
+            color="orange",
+        )
+
     # Summary by Catatan (Operator Notes)
-    with st.expander("Lihat Ringkasan Lengkap"):
+    # Format last_update to show only up to seconds
+
+    format_last_update_time()
+    with st.expander("Ringksan Berdasarkan pada Kolom Catatan"):
         summary_catatan = get_summary_by_catatan_cached()
         st.dataframe(summary_catatan, width="stretch", hide_index=True)
 
     # Summary by Jenis (Product Type)
-    with st.expander("Lihat Ringkasan per Jenis Produk"):
+    with st.expander("Lihat Ringkasan per Jenis Produk (flagging di table produk)"):
         summary_jenis = get_summary_by_jenis_cached()
         st.dataframe(summary_jenis, width="stretch", hide_index=True)
 
     # Summary by Final Status
-    with st.expander("Lihat Ringkasan per Status Final"):
+    with st.expander("Lihat Ringkasan per Status Final (kombinasi opr dan produk)"):
         summary_status = get_summary_by_final_status_cached()
         st.dataframe(summary_status, width="stretch", hide_index=True)
 
 
+def format_last_update_time():
+    """Format time."""
+    last_update_str = str(state.last_update)
+    try:
+        # Try to parse and format
+        last_update_dt = datetime.datetime.fromisoformat(last_update_str)
+        last_update_str = last_update_dt.strftime("%Y-%m-%d %H:%M:%S")
+    except Exception:
+        # Fallback to string
+        pass
+    st.caption(f"data refreshed at {last_update_str}")
+
+
+render_header()
 if state.is_loaded:
     # Get data dari cache (bukan dari state)
     df = get_product_data_cached()
@@ -175,7 +196,7 @@ if state.is_loaded:
     if df.empty:
         st.warning("Data produk kosong")
     else:
-        render_statistics_ui()
+        render_statistics_ui(df)
 
         # Show detailed data table
         with st.expander("Lihat Data Produk Lengkap"):

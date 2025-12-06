@@ -17,7 +17,8 @@ def require_login() -> None:
 
     if not auth.is_authenticated:
         st.warning("⚠️ Silakan login terlebih dahulu.")
-        st.stop()
+        st.switch_page("auth/login.py")
+        # st.stop()
 
 
 def require_role(required_role: str) -> None:
@@ -38,4 +39,5 @@ def require_role(required_role: str) -> None:
 
     if not auth.can_access(required_role):
         st.error(f"❌ Akses ditolak. Role '{required_role}' diperlukan.")
-        st.stop()
+        st.switch_page("auth/login.py")
+        # st.stop()
