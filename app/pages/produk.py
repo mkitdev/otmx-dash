@@ -6,7 +6,11 @@ import streamlit_shadcn_ui as ui
 from app.core.mlog import log_user_event
 from app.services.auth.adapter import get_current_user, get_current_user_role
 from app.services.auth.guard import require_login
-from app.services.produk import get_product_data, get_produk_state, save_produk_state
+from app.services.produk import (
+    get_product_data_cached,
+    get_produk_state,
+    save_produk_state,
+)
 
 require_login()
 # for debuging : hitung berapa kali page ini di load
@@ -30,7 +34,7 @@ def on_load_data_produk():
         message="user Load Data Produk",
     )
     try:
-        get_product_data()
+        get_product_data_cached()
         state = get_produk_state()
         state.load_success()
         save_produk_state(state)
@@ -53,7 +57,7 @@ def on_load_data_produk():
 
 def on_clear_cache():
     """Callback: Clear cache data produk & reset state."""
-    get_product_data.clear()
+    get_product_data_cached.clear()
 
     state = get_produk_state()
     state.clear_cache()
@@ -181,7 +185,7 @@ def filtering_ui(df):
 
 if state.is_loaded:
     # Get data dari cache (bukan dari state)
-    df = get_product_data()
+    df = get_product_data_cached()
 
     if df.empty:
         st.warning("Data produk kosong")

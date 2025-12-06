@@ -5,8 +5,11 @@ Converts between:
 - ProductLoadState domain object
 """
 
+from datetime import timedelta
+
 import streamlit as st
 
+from app.services.produk.repo_main_df import get_product_data
 from app.services.produk.state import ProductLoadState
 
 
@@ -40,3 +43,9 @@ def save_produk_state(state: ProductLoadState) -> None:
         state: ProductLoadState to persist
     """
     st.session_state.produk_state = state.to_dict()
+
+
+@st.cache_data(ttl=timedelta(minutes=10), show_spinner="Memuat data produk...")
+def get_product_data_cached():
+    """Adapter to make loose to streamlit."""
+    return get_product_data()

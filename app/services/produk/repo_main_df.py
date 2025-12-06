@@ -1,15 +1,8 @@
-from datetime import timedelta
-
 import duckdb
 import pandas as pd
-import streamlit as st
 from loguru import logger
 
 from app.services.shared import get_conn
-
-# =========================
-# RAW SQL (TANPA LOGIC BISNIS)
-# =========================
 
 SQL_QUERY = """
 select
@@ -90,12 +83,6 @@ def _transform_product_data(df_raw: pd.DataFrame) -> pd.DataFrame:
     return df_transformed
 
 
-# =========================
-# PUBLIC SERVICE FUNCTION
-# =========================
-
-
-@st.cache_data(ttl=timedelta(minutes=10), show_spinner="Memuat data produk...")
 def get_product_data() -> pd.DataFrame:
     """Load data produk (RAW SQL → DuckDB Transform)."""
     try:
