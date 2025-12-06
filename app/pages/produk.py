@@ -3,6 +3,7 @@
 import streamlit as st
 import streamlit_shadcn_ui as ui
 
+from app.components import metric_card_custom
 from app.core.mlog import log_user_event
 from app.services.auth import (
     get_current_user,
@@ -126,26 +127,29 @@ def render_statistics_ui():
 
     with col1:
         total_operator = count_total_unique_operator(df_raw)
-        ui.metric_card(
+        metric_card_custom(
             title="Operator",
             content=str(total_operator),
             description="Total Group Operator",
+            color="blue",
         )
 
     with col2:
         total_catatan = count_total_unique_catatan(df_raw)
-        ui.metric_card(
+        metric_card_custom(
             title="Catatan",
             content=str(total_catatan),
             description="Total Catatan",
+            color="orange",
         )
 
     with col3:
         total_produk = count_total_unique_produk(df_raw)
-        ui.metric_card(
+        metric_card_custom(
             title="Produk",
             content=str(total_produk),
             description="Total Produk",
+            color="green",
         )
 
     # Summary by Catatan (Operator Notes)
