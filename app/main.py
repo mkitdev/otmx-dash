@@ -37,7 +37,7 @@ login_pg = st.Page("pages/auth/login.py", title="Login")
 logout_pg = st.Page("pages/auth/logout.py", title="Logout")
 landing = st.Page("pages/other/landing.py", title="Home", default=True)
 produk = st.Page("pages/reports/produk.py", title="Produk")
-reseller = st.Page("pages/reseller.py", title="Reseller")
+reseller = st.Page("pages/reports/reseller.py", title="Reseller")
 adm_settings = st.Page("pages/settings.py", title="Settings")
 
 
@@ -46,7 +46,7 @@ if auth.is_authenticated:
     # Build navigation based on role
     nav_config = {
         "Welcome": [landing],
-        "Data": [produk, reseller],
+        "Reports": [produk, reseller],
         "Account": [logout_pg],
     }
 
