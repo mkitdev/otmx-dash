@@ -51,8 +51,7 @@ def save_produk_state(state: ProductLoadState) -> None:
     st.session_state.produk_state = state.to_dict()
 
 
-@st.cache_data(ttl=timedelta(minutes=10), show_spinner="Memuat data produk...")
-@timeit
+@st.cache_data(ttl=timedelta(minutes=0), show_spinner="Memuat data produk...")
 def get_product_data_cached():
     """Get product data from repository cache.
 
