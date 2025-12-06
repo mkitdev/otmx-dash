@@ -112,6 +112,7 @@ with st.sidebar:
 
 
 def render_header():
+    """Render header section dengan title dan badges."""
     st.header("Data Produk", divider=True)
     ui.badges(badge_list=[("SQL Server Data", "default")])
 
