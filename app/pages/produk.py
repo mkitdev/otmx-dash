@@ -21,11 +21,7 @@ from app.services.produk import (
     get_summary_by_jenis_cached,
     save_produk_state,
 )
-from app.services.produk._internal.queries import (
-    count_total_unique_catatan,
-    count_total_unique_operator,
-    count_total_unique_produk,
-)
+from app.services.produk._internal.queries import get_stats_from_df
 
 require_login()
 # for debuging : hitung berapa kali page ini di load
@@ -126,34 +122,53 @@ def render_statistics_ui(df: Any) -> None:
     Args:
         df: DataFrame produk yang sudah di-cache
     """
-    # Card metrics - inline count functions
+    # Extract stats once using pandas
+    stats = get_stats_from_df(df)
+
+    # Row 1: Operator, Produk, Catatan
     col1, col2, col3 = st.columns(3, gap="small")
 
     with col1:
-        total_operator = count_total_unique_operator(df)
         metric_card_custom(
             title="Operator",
-            content=str(total_operator),
+            content=str(stats["total_operator"]),
             description="Total Group Operator",
             color="blue",
         )
 
     with col2:
-        total_produk = count_total_unique_produk(df)
         metric_card_custom(
             title="Produk",
-            content=str(total_produk),
+            content=str(stats["total_produk"]),
             description="Total Produk",
             color="green",
         )
 
     with col3:
-        total_catatan = count_total_unique_catatan(df)
         metric_card_custom(
             title="Catatan",
-            content=str(total_catatan),
+            content=str(stats["total_catatan"]),
             description="Total Catatan",
             color="orange",
+        )
+
+    # Row 2: Available, Unavailable
+    col4, col5 = st.columns(2, gap="small")
+
+    with col4:
+        metric_card_custom(
+            title="Available",
+            content=str(stats["total_available"]),
+            description="Produk Tersedia",
+            color="green",
+        )
+
+    with col5:
+        metric_card_custom(
+            title="Unavailable",
+            content=str(stats["total_unavailable"]),
+            description="Produk Tidak Tersedia",
+            color="red",
         )
 
     # Summary by Catatan (Operator Notes)

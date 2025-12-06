@@ -72,11 +72,13 @@ def get_product_data_cached():
 def get_summary_by_catatan_cached():
     """Get product summary grouped by operator notes (cached).
 
+    Reuses transformed data from cache instead of querying raw data again.
+
     Returns:
         pd.DataFrame: Summary with columns [opr_catatan, total_operator, total_produk]
     """
-    df_raw = _repo.get_raw_products()
-    return aggregate_by_catatan(df_raw)
+    df = get_product_data_cached()  # Reuse cached transformed DF
+    return aggregate_by_catatan(df)
 
 
 @timeit
@@ -84,11 +86,13 @@ def get_summary_by_catatan_cached():
 def get_summary_by_jenis_cached():
     """Get product summary grouped by product type (cached).
 
+    Reuses transformed data from cache instead of querying raw data again.
+
     Returns:
         pd.DataFrame: Summary with columns [prd_jenis, total_operator, total_produk]
     """
-    df_raw = _repo.get_raw_products()
-    return aggregate_by_jenis(df_raw)
+    df = get_product_data_cached()  # Reuse cached transformed DF
+    return aggregate_by_jenis(df)
 
 
 @timeit
@@ -96,8 +100,10 @@ def get_summary_by_jenis_cached():
 def get_summary_by_final_status_cached():
     """Get product summary grouped by final status (cached).
 
+    Reuses transformed data from cache instead of querying raw data again.
+
     Returns:
-        pd.DataFrame: Summary with columns [prd_status_final, total_operator, total_produk]
+        pd.DataFrame: Summary with columns [status, total_operator, total_produk]
     """
-    df_raw = _repo.get_raw_products()
-    return aggregate_by_final_status(df_raw)
+    df = get_product_data_cached()  # Reuse cached transformed DF
+    return aggregate_by_final_status(df)

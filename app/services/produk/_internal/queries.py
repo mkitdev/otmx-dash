@@ -1,251 +1,169 @@
-"""Product query functions - pure aggregation via DuckDB.
+"""Product query functions - pure aggregation via pandas.
 
 All functions:
-- Take raw product data from repository
-- Perform aggregation using DuckDB (consistent with infrastructure layer)
-- Return aggregated results as pd.DataFrame
+- Take transformed product data (with derived columns)
+- Perform aggregation using pandas (simple, readable)
+- Return aggregated results as pd.DataFrame or dict
 - No side effects, deterministic
 
 Internal module - only imported by adapter.py, not exposed to UI.
 """
 
-import duckdb
 import pandas as pd
 from loguru import logger
 
 
-def _validate_query_result(result_row: tuple | None, context: str = "") -> int:
-    """Validate DuckDB query result and extract count value.
+def get_stats_from_df(df: pd.DataFrame) -> dict:
+    """Extract key statistics from transformed product dataframe.
 
-    Inner function: Raises ValueError if result is None or empty.
-    Used by count_total_unique_* functions to validate aggregation results.
+    Fast pandas operations (no DuckDB needed for simple counts).
 
     Args:
-        result_row: Row tuple from duckdb.sql().fetchone()
-        context: Optional context string for logging (e.g., 'operator count')
+        df: Transformed product DataFrame (must have derived columns like prd_status_final)
 
     Returns:
-        int: Count value from first column of result row
-
-    Raises:
-        ValueError: If result_row is None (query returned no results)
+        dict: Statistics with keys:
+            - total_operator: Count of unique operators
+            - total_produk: Count of unique products
+            - total_catatan: Count of unique catatan
+            - total_available: Count of available products
+            - total_unavailable: Count of unavailable products
     """
-    if result_row is None:
-        msg = f"Query returned no results{f' ({context})' if context else ''}"
-        raise ValueError(msg)
-    return result_row[0]
+    if df.empty:
+        logger.warning("Empty dataframe provided to get_stats_from_df")
+        return {
+            "total_operator": 0,
+            "total_produk": 0,
+            "total_catatan": 0,
+            "total_available": 0,
+            "total_unavailable": 0,
+        }
+
+    try:
+        # Use pandas for simple operations - much faster than DuckDB for this
+        stats = {
+            "total_operator": int(df["opr_kode"].nunique()),
+            "total_produk": int(df["prd_kode"].nunique()),
+            "total_catatan": int(df["opr_catatan"].nunique()),
+            "total_available": len(
+                df[df["prd_status_final"] == "available"]["prd_kode"].unique()
+            ),
+            "total_unavailable": len(
+                df[df["prd_status_final"] == "unavailable"]["prd_kode"].unique()
+            ),
+        }
+        logger.info(f"Extracted stats from dataframe: {stats}")
+        return stats
+
+    except Exception as e:
+        logger.error(f"Failed to extract stats from dataframe: {e}", exc_info=True)
+        raise
 
 
-def aggregate_by_catatan(df_raw: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate product data by operator notes (catatan) via DuckDB.
+def aggregate_by_catatan(df: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate product data by operator notes (catatan) from transformed dataframe.
 
-    Groups raw data and calculates:
+    Groups data and calculates:
     - total_operator: Count of unique operators
     - total_produk: Count of unique products
-    - total_available: Count of available products
 
     Args:
-        df_raw: Raw product DataFrame from ProductRepository.get_raw_products()
+        df: Transformed product DataFrame
 
     Returns:
         pd.DataFrame: Aggregated data grouped by opr_catatan, sorted by total_produk desc
     """
-    if df_raw.empty:
+    if df.empty:
         logger.warning("Empty dataframe provided to aggregate_by_catatan")
-        return df_raw
+        return df
 
     try:
-        result = duckdb.sql(
-            """
-            SELECT
-                opr_catatan,
-                COUNT(DISTINCT opr_kode) as total_operator,
-                COUNT(DISTINCT prd_kode) as total_produk
-            FROM df_raw
-            GROUP BY opr_catatan
-            ORDER BY total_produk DESC
-            """
-        ).df()
+        result = (
+            df.groupby("opr_catatan")
+            .agg(
+                total_operator=("opr_kode", "nunique"),
+                total_produk=("prd_kode", "nunique"),
+            )
+            .reset_index()
+            .sort_values("total_produk", ascending=False)
+        )
 
         logger.info(f"Aggregated by catatan: {len(result)} rows")
+        return result
 
     except Exception as e:
         logger.error(f"Failed to aggregate by catatan: {e}", exc_info=True)
         raise
-    return result
 
 
-def aggregate_by_jenis(df_raw: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate product data by product type (jenis) via DuckDB.
+def aggregate_by_jenis(df: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate product data by product type (jenis) from transformed dataframe.
 
-    Groups raw data and calculates:
+    Groups data and calculates:
     - total_operator: Count of unique operators
     - total_produk: Count of unique products
-    - total_available: Count of available products
 
     Args:
-        df_raw: Raw product DataFrame from ProductRepository.get_raw_products()
+        df: Transformed product DataFrame
 
     Returns:
         pd.DataFrame: Aggregated data grouped by prd_jenis, sorted by total_produk desc
     """
-    if df_raw.empty:
+    if df.empty:
         logger.warning("Empty dataframe provided to aggregate_by_jenis")
-        return df_raw
+        return df
 
     try:
-        result = duckdb.sql(
-            """
-            SELECT
-                CASE
-                    WHEN prd_jenis_postpaid = 1 AND prd_jenis_fisik = 0 THEN 'postpaid'
-                    WHEN prd_jenis_postpaid = 0 AND prd_jenis_fisik = 1 THEN 'fisik'
-                    WHEN prd_jenis_postpaid = 0 AND prd_jenis_fisik = 0 THEN 'reguler'
-                    WHEN prd_jenis_postpaid = 1 AND prd_jenis_fisik = 1 THEN 'undefined'
-                END AS prd_jenis,
-                COUNT(DISTINCT opr_kode) as total_operator,
-                COUNT(DISTINCT prd_kode) as total_produk
-            FROM df_raw
-            GROUP BY prd_jenis
-            ORDER BY total_produk DESC
-            """
-        ).df()
+        result = (
+            df.groupby("prd_jenis")
+            .agg(
+                total_operator=("opr_kode", "nunique"),
+                total_produk=("prd_kode", "nunique"),
+            )
+            .reset_index()
+            .sort_values("total_produk", ascending=False)
+        )
 
         logger.info(f"Aggregated by jenis: {len(result)} rows")
+        return result
 
     except Exception as e:
         logger.error(f"Failed to aggregate by jenis: {e}", exc_info=True)
         raise
-    return result
 
 
-def aggregate_by_final_status(df_raw: pd.DataFrame) -> pd.DataFrame:
-    """Aggregate product data by final status via DuckDB.
+def aggregate_by_final_status(df: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate product data by final status from transformed dataframe.
 
-    Groups raw data and calculates:
+    Groups data and calculates:
     - total_operator: Count of unique operators
     - total_produk: Count of unique products
 
-    Note: Requires final status logic to be in raw data or calculated here.
-
     Args:
-        df_raw: Raw product DataFrame from ProductRepository.get_raw_products()
+        df: Transformed product DataFrame
 
     Returns:
         pd.DataFrame: Aggregated data by status (available/unavailable), sorted by total_produk desc
     """
-    if df_raw.empty:
+    if df.empty:
         logger.warning("Empty dataframe provided to aggregate_by_final_status")
-        return df_raw
+        return df
 
     try:
-        result = duckdb.sql(
-            """
-            SELECT
-                CASE
-                    WHEN opr_gangguan = 1 OR opr_kosong = 1 THEN 'unavailable'
-                    WHEN prd_stts_gangguan = 1 OR prd_stts_kosong = 1 THEN 'unavailable'
-                    WHEN prd_stts_aktif = 0 THEN 'unavailable'
-                    ELSE 'available'
-                END AS prd_status_final,
-                COUNT(DISTINCT opr_kode) as total_operator,
-                COUNT(DISTINCT prd_kode) as total_produk
-            FROM df_raw
-            GROUP BY prd_status_final
-            ORDER BY total_produk DESC
-            """
-        ).df()
+        result = (
+            df.groupby("prd_status_final")
+            .agg(
+                total_operator=("opr_kode", "nunique"),
+                total_produk=("prd_kode", "nunique"),
+            )
+            .reset_index()
+            .rename(columns={"prd_status_final": "status"})
+            .sort_values("total_produk", ascending=False)
+        )
 
         logger.info(f"Aggregated by final_status: {len(result)} rows")
+        return result
 
     except Exception as e:
         logger.error(f"Failed to aggregate by final_status: {e}", exc_info=True)
         raise
-    return result
-
-
-def count_total_unique_operator(df_raw: pd.DataFrame) -> int:
-    """Count total unique operators in raw product data.
-
-    Args:
-        df_raw: Raw product DataFrame from ProductRepository.get_raw_products()
-
-    Returns:
-        int: Total count of unique operators (opr_kode)
-    """
-    if df_raw.empty:
-        logger.warning("Empty dataframe provided to count_total_unique_operator")
-        return 0
-
-    try:
-        row = duckdb.sql(
-            """
-            SELECT COUNT(DISTINCT opr_kode) as total_operator
-            FROM df_raw
-            """
-        ).fetchone()
-        result = _validate_query_result(row, "operator count")
-    except Exception as e:
-        logger.error(f"Failed to count total unique operators: {e}", exc_info=True)
-        raise
-    else:
-        logger.info(f"Counted total unique operators: {result}")
-        return result
-
-
-def count_total_unique_catatan(df_raw: pd.DataFrame) -> int:
-    """Count total unique operator notes (catatan) in raw product data.
-
-    Args:
-        df_raw: Raw product DataFrame from ProductRepository.get_raw_products()
-
-    Returns:
-        int: Total count of unique opr_catatan
-    """
-    if df_raw.empty:
-        logger.warning("Empty dataframe provided to count_total_unique_catatan")
-        return 0
-
-    try:
-        row = duckdb.sql(
-            """
-            SELECT COUNT(DISTINCT opr_catatan) as total_catatan
-            FROM df_raw
-            """
-        ).fetchone()
-        result = _validate_query_result(row, "catatan count")
-    except Exception as e:
-        logger.error(f"Failed to count total unique catatan: {e}", exc_info=True)
-        raise
-    else:
-        logger.info(f"Counted total unique catatan: {result}")
-        return result
-
-
-def count_total_unique_produk(df_raw: pd.DataFrame) -> int:
-    """Count total unique products in raw product data.
-
-    Args:
-        df_raw: Raw product DataFrame from ProductRepository.get_raw_products()
-
-    Returns:
-        int: Total count of unique prd_kode
-    """
-    if df_raw.empty:
-        logger.warning("Empty dataframe provided to count_total_unique_produk")
-        return 0
-
-    try:
-        row = duckdb.sql(
-            """
-            SELECT COUNT(DISTINCT prd_kode) as total_produk
-            FROM df_raw
-            """
-        ).fetchone()
-        result = _validate_query_result(row, "produk count")
-    except Exception as e:
-        logger.error(f"Failed to count total unique produk: {e}", exc_info=True)
-        raise
-    else:
-        logger.info(f"Counted total unique produk: {result}")
-        return result
