@@ -2,6 +2,8 @@
 
 Handles credential validation and dev mode user lookup.
 No state management, no Streamlit dependencies.
+
+Internal module - only imported by adapter.py, not exposed to UI.
 """
 
 from app.core.mlog import log_user_event

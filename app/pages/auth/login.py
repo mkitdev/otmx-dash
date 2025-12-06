@@ -3,13 +3,11 @@
 import streamlit as st
 
 from app.services.auth import (
-    AuthConfig,
     get_auth,
-    get_default_user,
+    get_current_user,
+    perform_login,
     save_auth,
-    validate_credentials,
 )
-from app.services.auth.adapter import get_current_user
 
 st.set_page_config(page_title="Login", layout="centered")
 
@@ -22,23 +20,7 @@ if auth.is_authenticated:
 
 def on_login_submit(username: str, password: str):
     """Callback: Validate credentials & update state."""
-    config = AuthConfig.instance()
-    users = config.get_users_dict()
-
-    # Check if auth enabled
-    if not config.is_enabled():
-        # Dev mode: auto-login
-        user_data = get_default_user(users)
-        if user_data:
-            auth_session = get_auth()
-            auth_session.login(user_data["username"], user_data["role"])
-            save_auth(auth_session)
-            st.success("✅ Login berhasil (dev mode)")
-            st.rerun()
-        return
-
-    # Production mode: validate credentials
-    user_data = validate_credentials(username, password, users)
+    user_data = perform_login(username, password)
 
     if user_data:
         auth_session = get_auth()

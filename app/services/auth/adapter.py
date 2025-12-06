@@ -7,7 +7,11 @@ Converts between:
 
 import streamlit as st
 
-from app.services.auth.config import AuthConfig
+from app.services.auth._internal.config import AuthConfig
+from app.services.auth._internal.credentials import (
+    get_default_user,
+    validate_credentials,
+)
 from app.services.auth.session import AuthSession
 
 
@@ -62,3 +66,27 @@ def get_current_user_role() -> str | None:
     """
     auth = get_auth()
     return auth.role if auth.is_authenticated else None
+
+
+def perform_login(username: str, password: str) -> dict | None:
+    """Perform login with credentials validation.
+
+    Validates username & password against configured users.
+    For dev mode (auth disabled), attempts auto-login with default user.
+
+    Args:
+        username: Username to login with (empty string for dev mode)
+        password: Password to login with (empty string for dev mode)
+
+    Returns:
+        dict: User data {username, role} if login successful, None otherwise
+    """
+    config = AuthConfig.instance()
+    users = config.get_users_dict()
+
+    # Dev mode: auth disabled
+    if not config.is_enabled():
+        return get_default_user(users)
+
+    # Production mode: validate credentials
+    return validate_credentials(username, password, users)
