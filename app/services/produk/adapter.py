@@ -15,11 +15,8 @@ from app.services.produk._internal.queries import (
     aggregate_by_final_status,
     aggregate_by_jenis,
 )
-from app.services.produk._internal.repository import ProductRepository
+from app.services.produk._internal.repository import get_all_products
 from app.services.produk.state import ProductLoadState
-
-# Singleton repository instance
-_repo = ProductRepository()
 
 
 def get_produk_state() -> ProductLoadState:
@@ -62,7 +59,7 @@ def get_product_data_cached():
     Returns:
         pd.DataFrame: Cached product data with all transformations
     """
-    return _repo.get_all_products()
+    return get_all_products()
 
 
 @st.cache_data(
