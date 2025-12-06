@@ -54,8 +54,8 @@ def save_produk_state(state: ProductLoadState) -> None:
     st.session_state.produk_state = state.to_dict()
 
 
-@timeit
 @st.cache_data(ttl=timedelta(minutes=10), show_spinner="Memuat data produk...")
+@timeit
 def get_product_data_cached():
     """Get product data from repository cache.
 
@@ -65,10 +65,10 @@ def get_product_data_cached():
     return _repo.get_all_products()
 
 
-@timeit
 @st.cache_data(
     ttl=timedelta(minutes=10), show_spinner="Menyiapkan ringkasan catatan..."
 )
+@timeit
 def get_summary_by_catatan_cached():
     """Get product summary grouped by operator notes (cached).
 
@@ -81,8 +81,8 @@ def get_summary_by_catatan_cached():
     return aggregate_by_catatan(df)
 
 
-@timeit
 @st.cache_data(ttl=timedelta(minutes=10), show_spinner="Menyiapkan ringkasan jenis...")
+@timeit
 def get_summary_by_jenis_cached():
     """Get product summary grouped by product type (cached).
 
@@ -95,8 +95,8 @@ def get_summary_by_jenis_cached():
     return aggregate_by_jenis(df)
 
 
-@timeit
 @st.cache_data(ttl=timedelta(minutes=10), show_spinner="Menyiapkan ringkasan status...")
+@timeit
 def get_summary_by_final_status_cached():
     """Get product summary grouped by final status (cached).
 
@@ -107,3 +107,21 @@ def get_summary_by_final_status_cached():
     """
     df = get_product_data_cached()  # Reuse cached transformed DF
     return aggregate_by_final_status(df)
+
+
+def clear_product_cache() -> None:
+    """Clear only product module's cached data (selective clearing).
+
+    Uses individual func.clear() to clear only produk-related caches,
+    NOT affecting other modules' caches like reseller, settings, etc.
+
+    Clears:
+    - get_product_data_cached()
+    - get_summary_by_catatan_cached()
+    - get_summary_by_jenis_cached()
+    - get_summary_by_final_status_cached()
+    """
+    get_product_data_cached.clear()
+    get_summary_by_catatan_cached.clear()
+    get_summary_by_jenis_cached.clear()
+    get_summary_by_final_status_cached.clear()

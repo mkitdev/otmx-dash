@@ -14,6 +14,7 @@ from app.services.auth import (
     require_login,
 )
 from app.services.produk import (
+    clear_product_cache,
     get_product_data_cached,
     get_produk_state,
     get_summary_by_catatan_cached,
@@ -29,6 +30,16 @@ if "page_produk_counter" not in st.session_state:
     st.session_state.page_produk_counter = 0
 
 
+def _log_event(event: str, message: str) -> None:
+    """Helper: Log user event."""
+    log_user_event(
+        event=event,
+        user_id=get_current_user() or "user",
+        role=get_current_user_role() or "user",
+        message=message,
+    )
+
+
 def on_load_data_produk():
     """Callback: Load data produk dari cache, update state.
 
@@ -37,13 +48,8 @@ def on_load_data_produk():
     state = get_produk_state()
     state.start_loading()
     save_produk_state(state)
+    _log_event("user load_data_produk", "user Load Data Produk")
 
-    log_user_event(
-        event="user load_data_produk",
-        user_id=get_current_user() or "user",
-        role=get_current_user_role() or "user",
-        message="user Load Data Produk",
-    )
     try:
         get_product_data_cached()
         state = get_produk_state()
@@ -69,19 +75,14 @@ def on_load_data_produk():
 def on_clear_cache():
     """Callback: Clear cache data produk & reset state.
 
-    Streamlit clears cache automatically on page rerun,
-    we just reset the state flags here.
+    Calls clear_product_cache() to clear only produk-related caches,
+    not affecting other modules like reseller, settings, etc.
     """
+    clear_product_cache()
     state = get_produk_state()
     state.clear_cache()
     save_produk_state(state)
-
-    log_user_event(
-        event="user clear_cache_produk",
-        user_id=get_current_user() or "user",
-        role=get_current_user_role() or "user",
-        message="user Clear Cache Produk",
-    )
+    _log_event("user clear_cache_produk", "user Clear Cache Produk")
 
 
 # INITIALIZE STATE

@@ -2,7 +2,7 @@
 
 Public API:
 - State management: get_produk_state(), save_produk_state()
-- Data access: get_product_data_cached()
+- Data access: get_product_data_cached(), clear_product_cache()
 - Summaries: get_summary_by_*_cached() functions
 - Domain: ProductLoadState
 
@@ -11,6 +11,7 @@ Internal (do not import directly):
 """
 
 from app.services.produk.adapter import (
+    clear_product_cache,
     get_product_data_cached,
     get_produk_state,
     get_summary_by_catatan_cached,
@@ -28,6 +29,7 @@ __all__ = [
     "save_produk_state",
     # Data access
     "get_product_data_cached",
+    "clear_product_cache",
     # Summaries
     "get_summary_by_catatan_cached",
     "get_summary_by_jenis_cached",
