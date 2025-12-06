@@ -1,7 +1,12 @@
 import streamlit as st
 
+from app.core.mlog import setup_logging
 from app.services.auth.adapter import get_auth
 from app.services.tracking import track_page_visit
+
+if "logger" not in st.session_state:
+    st.session_state.logger = setup_logging()
+logger = st.session_state.logger
 
 st.set_page_config(
     page_title="Otmx Dash",

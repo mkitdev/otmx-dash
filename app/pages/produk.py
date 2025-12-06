@@ -79,14 +79,14 @@ with st.sidebar:
         on_click=on_load_data_produk,
         type="primary",
         disabled=state.is_loading,
-        use_container_width=True,
+        width="stretch",
     )
 
     st.button(
         label="🗑️ Clear Cache",
         on_click=on_clear_cache,
         type="secondary",
-        use_container_width=True,
+        width="stretch",
     )
 
     if state.is_loading:
