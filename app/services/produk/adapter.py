@@ -9,7 +9,7 @@ from datetime import timedelta
 
 import streamlit as st
 
-from app.services.produk.repo_main_df import get_product_data
+from app.services.produk.rep_raw_produk import get_product_data
 from app.services.produk.state import ProductLoadState
 
 
