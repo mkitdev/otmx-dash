@@ -21,8 +21,8 @@ def get_conn():
         logger.debug("Initializing SQL connection resource...")
         conn = st.connection(name="sql")
         logger.info("SQL connection resource initialized")
-
     except SQLAlchemyError as e:
         logger.error(f"Connection failed: {e}", exc_info=True)
-        raise BackEndServiceError(service_name="database_connection", error=e) from e
+        backend_exc = BackEndServiceError(service_name="database_connection", error=e)
+        raise backend_exc from e
     return conn
