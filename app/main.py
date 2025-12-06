@@ -36,7 +36,7 @@ if "page_main_counter" not in st.session_state:
 login_pg = st.Page("pages/auth/login.py", title="Login")
 logout_pg = st.Page("pages/auth/logout.py", title="Logout")
 landing = st.Page("pages/other/landing.py", title="Home", default=True)
-produk = st.Page("pages/produk.py", title="Produk")
+produk = st.Page("pages/reports/produk.py", title="Produk")
 reseller = st.Page("pages/reseller.py", title="Reseller")
 adm_settings = st.Page("pages/settings.py", title="Settings")
 

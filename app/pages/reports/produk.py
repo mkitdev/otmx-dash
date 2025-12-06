@@ -1,5 +1,7 @@
 """Halaman Produk dengan lazy loading pattern."""
 
+# [ ] TODO: remember to smplfy : dont ever engineer
+# [ ] TODO: Refactor about clear cache
 import datetime
 from typing import Any
 
