@@ -9,6 +9,7 @@ from datetime import timedelta
 
 import streamlit as st
 
+from app.core.mlog_perf import timeit
 from app.services.produk.internal.queries import (
     aggregate_by_catatan,
     aggregate_by_final_status,
@@ -53,6 +54,7 @@ def save_produk_state(state: ProductLoadState) -> None:
     st.session_state.produk_state = state.to_dict()
 
 
+@timeit
 @st.cache_data(ttl=timedelta(minutes=10), show_spinner="Memuat data produk...")
 def get_product_data_cached():
     """Get product data from repository cache.
@@ -63,6 +65,7 @@ def get_product_data_cached():
     return _repo.get_all_products()
 
 
+@timeit
 @st.cache_data(
     ttl=timedelta(minutes=10), show_spinner="Menyiapkan ringkasan catatan..."
 )
@@ -76,6 +79,7 @@ def get_summary_by_catatan_cached():
     return aggregate_by_catatan(df_raw)
 
 
+@timeit
 @st.cache_data(ttl=timedelta(minutes=10), show_spinner="Menyiapkan ringkasan jenis...")
 def get_summary_by_jenis_cached():
     """Get product summary grouped by product type (cached).
@@ -87,6 +91,7 @@ def get_summary_by_jenis_cached():
     return aggregate_by_jenis(df_raw)
 
 
+@timeit
 @st.cache_data(ttl=timedelta(minutes=10), show_spinner="Menyiapkan ringkasan status...")
 def get_summary_by_final_status_cached():
     """Get product summary grouped by final status (cached).
