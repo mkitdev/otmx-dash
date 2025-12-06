@@ -44,8 +44,9 @@ def _transform_product_data(df_raw: pd.DataFrame) -> pd.DataFrame:
     """Normalisasi & business rule layer via DuckDB."""
     # guard if df_raw is empty
     if df_raw.empty:
+        logger.warning("got empty df , skipping proses")
         return df_raw
-    return duckdb.sql(
+    df_transformed = duckdb.sql(
         """
         SELECT
             *,
@@ -85,6 +86,8 @@ def _transform_product_data(df_raw: pd.DataFrame) -> pd.DataFrame:
         FROM df_raw
         """
     ).to_df()
+    logger.info(f"Transformed product data: {len(df_transformed)} rows")
+    return df_transformed
 
 
 # =========================
