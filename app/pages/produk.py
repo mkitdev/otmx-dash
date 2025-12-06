@@ -1,6 +1,7 @@
 """Halaman Produk dengan lazy loading pattern."""
 
 import streamlit as st
+import streamlit_shadcn_ui as ui
 
 from app.core.mlog import log_user_event
 from app.services.auth import (
@@ -112,6 +113,7 @@ with st.sidebar:
 
 # MAIN CONTENT
 st.header("Data Produk", divider=True)
+ui.badges(badge_list=[("SQL Server Data", "default")])
 
 
 def render_statistics_ui():
@@ -124,32 +126,42 @@ def render_statistics_ui():
 
     with col1:
         total_operator = count_total_unique_operator(df_raw)
-        st.metric("👥 Total Operator", total_operator)
+        ui.metric_card(
+            title="Operator",
+            content=str(total_operator),
+            description="Total Group Operator",
+        )
 
     with col2:
         total_catatan = count_total_unique_catatan(df_raw)
-        st.metric("📋 Total Catatan", total_catatan)
+        ui.metric_card(
+            title="Catatan",
+            content=str(total_catatan),
+            description="Total Catatan",
+        )
 
     with col3:
         total_produk = count_total_unique_produk(df_raw)
-        st.metric("📦 Total Produk", total_produk)
-
-    st.divider()
+        ui.metric_card(
+            title="Produk",
+            content=str(total_produk),
+            description="Total Produk",
+        )
 
     # Summary by Catatan (Operator Notes)
-    st.subheader("📋 Ringkasan per Catatan Operator")
-    summary_catatan = get_summary_by_catatan_cached()
-    st.dataframe(summary_catatan, use_container_width=True, hide_index=True)
+    with st.expander("Lihat Ringkasan Lengkap"):
+        summary_catatan = get_summary_by_catatan_cached()
+        st.dataframe(summary_catatan, width="stretch", hide_index=True)
 
     # Summary by Jenis (Product Type)
-    st.subheader("📦 Ringkasan per Jenis Produk")
-    summary_jenis = get_summary_by_jenis_cached()
-    st.dataframe(summary_jenis, use_container_width=True, hide_index=True)
+    with st.expander("Lihat Ringkasan per Jenis Produk"):
+        summary_jenis = get_summary_by_jenis_cached()
+        st.dataframe(summary_jenis, width="stretch", hide_index=True)
 
     # Summary by Final Status
-    st.subheader("✅ Ringkasan per Status Final")
-    summary_status = get_summary_by_final_status_cached()
-    st.dataframe(summary_status, use_container_width=True, hide_index=True)
+    with st.expander("Lihat Ringkasan per Status Final"):
+        summary_status = get_summary_by_final_status_cached()
+        st.dataframe(summary_status, width="stretch", hide_index=True)
 
 
 if state.is_loaded:
@@ -162,12 +174,12 @@ if state.is_loaded:
         render_statistics_ui()
 
         # Show detailed data table
-        st.subheader("📊 Detail Data Produk")
-        st.dataframe(
-            data=df,
-            use_container_width=True,
-            hide_index=False,
-        )
+        with st.expander("Lihat Data Produk Lengkap"):
+            st.dataframe(
+                data=df,
+                width="stretch",
+                hide_index=False,
+            )
 
 else:
     st.info("👇 Klik tombol **Muat Data Produk** di sidebar untuk memulai.")
