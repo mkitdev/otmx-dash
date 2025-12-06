@@ -1,7 +1,6 @@
 """Halaman Produk dengan lazy loading pattern."""
 
 import streamlit as st
-import streamlit_shadcn_ui as ui
 
 from app.core.mlog import log_user_event
 from app.services.auth import (
@@ -12,7 +11,15 @@ from app.services.auth import (
 from app.services.produk import (
     get_product_data_cached,
     get_produk_state,
+    get_summary_by_catatan_cached,
+    get_summary_by_final_status_cached,
+    get_summary_by_jenis_cached,
     save_produk_state,
+)
+from app.services.produk._internal.queries import (
+    count_total_unique_catatan,
+    count_total_unique_operator,
+    count_total_unique_produk,
 )
 
 require_login()
@@ -107,85 +114,42 @@ with st.sidebar:
 st.header("Data Produk", divider=True)
 
 
-def render_statitics_ui():
-    """Render statistik produk dalam bentuk cards."""
-    card_cols = st.columns(3, gap="small")
-    with card_cols[0]:
-        ui.metric_card(
-            title="Total Operator",
-            content=str(df["opr_kode"].nunique()),
-            description="Jumlah operator unik dalam sistem",
-            key="card_total_operator",
-        )
-    with card_cols[1]:
-        ui.metric_card(
-            title="Total Produk",
-            content=str(df["prd_kode"].nunique()),
-            description="Jumlah produk yang berstatus tersedia",
-            key="total_produk_tersedia_card",
-        )
-    with card_cols[2]:
-        ui.metric_card(
-            title="Total Jenis Catatan",
-            content=str(df["opr_catatan"].nunique()),
-            description="Jumlah produk yang berstatus tidak tersedia",
-            key="total_produk_tidak_tersedia_card",
-        )
+def render_statistics_ui():
+    """Render statistik produk dalam bentuk cards & tables."""
+    # Get raw data untuk card metrics
+    df_raw = get_product_data_cached()
 
+    # Card metrics - inline count functions
+    col1, col2, col3 = st.columns(3, gap="small")
 
-@st.fragment
-def filtering_ui(df):
-    """Multi-tier filtering UI (3 level)."""
-    with st.expander("Filter Produk", expanded=True):
-        # =========================
-        # TIER 1 — CATATAN OPERATOR
-        # =========================
-        tier1_options = df["opr_catatan"].dropna().unique().tolist()
+    with col1:
+        total_operator = count_total_unique_operator(df_raw)
+        st.metric("👥 Total Operator", total_operator)
 
-        tier1_selected = st.multiselect(
-            label="Catatan Operator",
-            options=tier1_options,
-            default=tier1_options,
-        )
+    with col2:
+        total_catatan = count_total_unique_catatan(df_raw)
+        st.metric("📋 Total Catatan", total_catatan)
 
-        df_t1 = df[df["opr_catatan"].isin(tier1_selected)]
+    with col3:
+        total_produk = count_total_unique_produk(df_raw)
+        st.metric("📦 Total Produk", total_produk)
 
-        # =========================
-        # TIER 2 — JENIS PRODUK
-        # (tergantung TIER 1)
-        # =========================
-        tier2_options = df_t1["prd_jenis"].dropna().unique().tolist()
+    st.divider()
 
-        tier2_selected = st.multiselect(
-            label="Jenis Produk",
-            options=tier2_options,
-            default=tier2_options,
-        )
+    # Summary by Catatan (Operator Notes)
+    st.subheader("📋 Ringkasan per Catatan Operator")
+    summary_catatan = get_summary_by_catatan_cached()
+    st.dataframe(summary_catatan, use_container_width=True, hide_index=True)
 
-        df_t2 = df_t1[df_t1["prd_jenis"].isin(tier2_selected)]
+    # Summary by Jenis (Product Type)
+    st.subheader("📦 Ringkasan per Jenis Produk")
+    summary_jenis = get_summary_by_jenis_cached()
+    st.dataframe(summary_jenis, use_container_width=True, hide_index=True)
 
-        # =========================
-        # TIER 3 — STATUS FINAL
-        # (tergantung TIER 1 + 2)
-        # =========================
-        tier3_options = df_t2["prd_status_final"].dropna().unique().tolist()
-
-        tier3_selected = st.multiselect(
-            label="Status Final",
-            options=tier3_options,
-            default=tier3_options,
-        )
-
-        df_final = df_t2[df_t2["prd_status_final"].isin(tier3_selected)]
-
-        # =========================
-        # RESULT
-        # =========================
-        st.dataframe(
-            data=df_final,
-            width="stretch",
-            hide_index=False,
-        )
+    # Summary by Final Status
+    st.subheader("✅ Ringkasan per Status Final")
+    summary_status = get_summary_by_final_status_cached()
+    st.dataframe(summary_status, use_container_width=True, hide_index=True)
 
 
 if state.is_loaded:
@@ -195,9 +159,17 @@ if state.is_loaded:
     if df.empty:
         st.warning("Data produk kosong")
     else:
-        render_statitics_ui()
-        filtering_ui(df)
+        render_statistics_ui()
+
+        # Show detailed data table
+        st.subheader("📊 Detail Data Produk")
+        st.dataframe(
+            data=df,
+            use_container_width=True,
+            hide_index=False,
+        )
 
 else:
     st.info("👇 Klik tombol **Muat Data Produk** di sidebar untuk memulai.")
+
 st.session_state.page_produk_counter += 1
