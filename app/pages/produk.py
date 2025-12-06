@@ -10,6 +10,10 @@ from app.services.produk import get_produk_state, save_produk_state
 from app.services.sql_product import get_product_data
 
 require_login()
+# for debuging : hitung berapa kali page ini di load
+if "page_produk_load_count" not in st.session_state:
+    st.session_state.page_produk_load_count = 0
+st.session_state.page_produk_load_count += 1
 
 
 def on_load_data_produk():
