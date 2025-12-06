@@ -112,7 +112,7 @@ def render_statitics_ui():
         ):
             st.dataframe(
                 data=df,
-                use_container_width=True,
+                width="stretch",
                 hide_index=False,
             )
         card_cols = st.columns(3, gap="large")
@@ -122,21 +122,21 @@ def render_statitics_ui():
                 content=str(df["opr_kode"].nunique()),
                 description="Jumlah operator unik dalam sistem",
                 key="total_operator_card",
-            ).render()
+            )
         with card_cols[1]:
             ui.metric_card(
                 title="Total Operator Tersedia",
                 content=str(len(df[df["opr_status"] == "available"])),
                 description="Jumlah operator yang berstatus tersedia",
                 key="total_operator_tersedia_card",
-            ).render()
+            )
         with card_cols[2]:
             ui.metric_card(
                 title="Total Operator Tidak Tersedia",
                 content=str(len(df[df["opr_status"] == "unavailable"])),
                 description="Jumlah operator yang berstatus tidak tersedia",
                 key="total_operator_tidak_tersedia_card",
-            ).render()
+            )
 
 
 if state.is_loaded:
