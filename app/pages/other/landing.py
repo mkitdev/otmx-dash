@@ -12,7 +12,7 @@ require_login()
 @st.cache_data
 def load_readme() -> str:
     """Load README.md content from project root."""
-    readme_path = Path(__file__).parent.parent.parent / "README.md"
+    readme_path = Path(__file__).parents[3] / "README.md"
     if readme_path.exists():
         return readme_path.read_text(encoding="utf-8")
     return "README file not found."
