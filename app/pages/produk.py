@@ -6,8 +6,7 @@ import streamlit_shadcn_ui as ui
 from app.core.mlog import log_user_event
 from app.services.auth.adapter import get_current_user, get_current_user_role
 from app.services.auth.guard import require_login
-from app.services.produk import get_produk_state, save_produk_state
-from app.services.sql_product import get_product_data
+from app.services.produk import get_product_data, get_produk_state, save_produk_state
 
 require_login()
 # for debuging : hitung berapa kali page ini di load
