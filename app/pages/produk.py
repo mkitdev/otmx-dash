@@ -60,7 +60,7 @@ def on_load_data_produk():
 
 def on_clear_cache():
     """Callback: Clear cache data produk & reset state.
-    
+
     Streamlit clears cache automatically on page rerun,
     we just reset the state flags here.
     """
