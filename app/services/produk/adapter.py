@@ -10,12 +10,12 @@ from datetime import timedelta
 import streamlit as st
 
 from app.core.mlog_perf import timeit
-from app.services.produk.internal.queries import (
+from app.services.produk._internal.queries import (
     aggregate_by_catatan,
     aggregate_by_final_status,
     aggregate_by_jenis,
 )
-from app.services.produk.internal.repository import ProductRepository
+from app.services.produk._internal.repository import ProductRepository
 from app.services.produk.state import ProductLoadState
 
 # Singleton repository instance

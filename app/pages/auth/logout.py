@@ -3,8 +3,7 @@
 import streamlit as st
 
 from app.core.mlog import log_user_event
-from app.services.auth.adapter import get_auth, get_current_user, save_auth
-from app.services.auth.guard import require_login
+from app.services.auth import get_auth, get_current_user, require_login, save_auth
 
 # ============================================================================
 # GUARD - REQUIRE LOGIN
