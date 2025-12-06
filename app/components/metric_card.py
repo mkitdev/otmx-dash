@@ -15,17 +15,32 @@ def metric_card_custom(
         title: Judul utama card (misal: "Operator")
         content: Angka/value yang ditampilkan besar (misal: 42)
         description: Deskripsi di bawah title (misal: "Total Group Operator")
-        color: Warna accent untuk angka (blue, green, red, orange, purple, indigo, cyan)
+        color: Warna accent untuk angka. Bisa:
+            - Named color: blue, green, red, orange, purple, indigo, cyan
+            - Hex color: #FF5733, #3B82F6, dll
+            - RGB: rgb(255, 87, 51)
 
     Example:
         >>> metric_card_custom(
         ...     title="Operator",
         ...     content=42,
         ...     description="Total Group Operator",
-        ...     color="blue",
+        ...     color="blue",  # Named color
+        ... )
+        >>> metric_card_custom(
+        ...     title="Revenue",
+        ...     content="$5.2M",
+        ...     description="Total Revenue",
+        ...     color="#FF6B6B",  # Custom hex
+        ... )
+        >>> metric_card_custom(
+        ...     title="Growth",
+        ...     content="24%",
+        ...     description="YoY Growth",
+        ...     color="rgb(34, 197, 94)",  # RGB
         ... )
     """
-    # Color palette mapping
+    # Color palette mapping (named colors)
     color_map = {
         "blue": "#3B82F6",
         "green": "#10B981",
@@ -36,7 +51,10 @@ def metric_card_custom(
         "cyan": "#06B6D4",
     }
 
-    accent_color = color_map.get(color, color_map["blue"])
+    # Check if color is a named color or hex/rgb code
+    accent_color = color_map.get(
+        color, color
+    )  # If not in map, use as-is (assume hex/rgb)
 
     # HTML + CSS untuk card layout 2 kolom (left text | right number)
     card_html = f"""

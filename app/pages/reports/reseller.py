@@ -34,25 +34,33 @@ if tab_reseller == "summary":
         content="150",
         description="Jumlah reseller aktif",
     )
-    cols = st.columns(3)
+    cols = st.columns(4)
 
     with cols[0]:
         metric_card_custom(
             title="Reseller Aktif",
             content="150",
             description="Jumlah reseller aktif",
+            color="#16C784",
         )
     with cols[1]:
         metric_card_custom(
             title="Reseller not Active",
             content="25",
             description="Reseller yang bergabung bulan ini",
-            color="red",
+            color="#F63105",
         )
     with cols[2]:
         metric_card_custom(
             title="Reseller Suspended",
             content="120",
             description="Reseller yang aktif bulan ini",
-            color="yellow",
+            color="#664508",
+        )
+    with cols[3]:
+        metric_card_custom(
+            title="Reseller Deleted",
+            content="15",
+            description="Reseller yang bergabung bulan ini",
+            color="#F50B0B",
         )
