@@ -46,11 +46,11 @@ def aggregate_by_catatan(df_raw: pd.DataFrame) -> pd.DataFrame:
         ).to_df()
 
         logger.info(f"Aggregated by catatan: {len(result)} rows")
-        return result
 
     except Exception as e:
         logger.error(f"Failed to aggregate by catatan: {e}", exc_info=True)
         raise
+    return result
 
 
 def aggregate_by_jenis(df_raw: pd.DataFrame) -> pd.DataFrame:
@@ -101,11 +101,11 @@ def aggregate_by_jenis(df_raw: pd.DataFrame) -> pd.DataFrame:
         ).to_df()
 
         logger.info(f"Aggregated by jenis: {len(result)} rows")
-        return result
 
     except Exception as e:
         logger.error(f"Failed to aggregate by jenis: {e}", exc_info=True)
         raise
+    return result
 
 
 def aggregate_by_final_status(df_raw: pd.DataFrame) -> pd.DataFrame:
@@ -157,8 +157,8 @@ def aggregate_by_final_status(df_raw: pd.DataFrame) -> pd.DataFrame:
         ).to_df()
 
         logger.info(f"Aggregated by final_status: {len(result)} rows")
-        return result
 
     except Exception as e:
         logger.error(f"Failed to aggregate by final_status: {e}", exc_info=True)
         raise
+    return result
