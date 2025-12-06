@@ -4,8 +4,11 @@ import streamlit as st
 import streamlit_shadcn_ui as ui
 
 from app.core.mlog import log_user_event
-from app.services.auth.adapter import get_current_user, get_current_user_role
-from app.services.auth.guard import require_login
+from app.services.auth import (
+    get_current_user,
+    get_current_user_role,
+    require_login,
+)
 from app.services.produk import (
     get_product_data_cached,
     get_produk_state,
@@ -56,9 +59,11 @@ def on_load_data_produk():
 
 
 def on_clear_cache():
-    """Callback: Clear cache data produk & reset state."""
-    get_product_data_cached.clear()
-
+    """Callback: Clear cache data produk & reset state.
+    
+    Streamlit clears cache automatically on page rerun,
+    we just reset the state flags here.
+    """
     state = get_produk_state()
     state.clear_cache()
     save_produk_state(state)
