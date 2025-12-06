@@ -6,7 +6,7 @@ from app.core.mlog import log_user_event
 from app.services.auth.adapter import get_current_user, get_current_user_role
 
 
-def track_page_visit(current_page: str) -> None:
+def track_user_visit_page(current_page: str) -> None:
     """Track page visit when user navigates to a new page.
 
     Args:

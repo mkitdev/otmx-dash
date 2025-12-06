@@ -2,7 +2,7 @@ import streamlit as st
 
 from app.core.mlog import setup_logging
 from app.services.auth.adapter import get_auth
-from app.services.tracking import track_page_visit
+from app.services.utils import track_user_visit_page
 
 if "logger" not in st.session_state:
     st.session_state.logger = setup_logging()
@@ -28,8 +28,8 @@ st.logo(
 auth = get_auth()
 
 # Counter to track app reruns
-if "app_main_rerun_counter" not in st.session_state:
-    st.session_state.app_main_rerun_counter = 0
+if "page_main_counter" not in st.session_state:
+    st.session_state.page_main_counter = 0
 
 
 # PAGE DEFINITIONS
@@ -65,7 +65,7 @@ else:
 current_title = pg.title if hasattr(pg, "title") else None
 
 if current_title:
-    track_page_visit(current_title)
+    track_user_visit_page(current_title)
 
 
 # [ ] TODO: DEBUG: SESSION STATE (remove in production)
@@ -74,5 +74,5 @@ with st.sidebar:
 
 # EXECUTE PAGE
 
-st.session_state.app_main_rerun_counter += 1
+st.session_state.page_main_counter += 1
 pg.run()

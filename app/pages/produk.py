@@ -11,9 +11,8 @@ from app.services.sql_product import get_product_data
 
 require_login()
 # for debuging : hitung berapa kali page ini di load
-if "page_produk_load_count" not in st.session_state:
-    st.session_state.page_produk_load_count = 0
-st.session_state.page_produk_load_count += 1
+if "page_produk_counter" not in st.session_state:
+    st.session_state.page_produk_counter = 0
 
 
 def on_load_data_produk():
@@ -150,3 +149,4 @@ if state.is_loaded:
 
 else:
     st.info("👇 Klik tombol **Muat Data Produk** di sidebar untuk memulai.")
+st.session_state.page_produk_counter += 1
