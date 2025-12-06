@@ -12,7 +12,7 @@ require_login()
 @st.cache_data
 def load_readme() -> str:
     """Load README.md content from project root."""
-    readme_path = Path(__file__).parents[3] / "README.md"
+    readme_path = Path(__file__).parents[3] / "About.md"
     if readme_path.exists():
         return readme_path.read_text(encoding="utf-8")
     return "README file not found."
@@ -27,7 +27,7 @@ def render_landing_page():
     with col2:
         st.write("")  # Spacing
 
-    st.markdown(
+    st.caption(
         "An application built with Streamlit to monitor reseller performance "
         "and drive data-driven decisions for **otomax**."
     )
@@ -35,6 +35,7 @@ def render_landing_page():
     st.divider()
 
     # Load and display README content
+    load_readme.clear()
     readme_content = load_readme()
 
     # Display README but skip mermaid diagrams (Streamlit doesn't render them natively)
@@ -57,8 +58,6 @@ def render_landing_page():
 
     filtered_content = "\n".join(filtered_lines)
     st.markdown(filtered_content)
-
-    st.divider()
 
     # Info boxes
     col1, col2, col3 = st.columns(3)
