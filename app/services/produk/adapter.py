@@ -9,8 +9,11 @@ from datetime import timedelta
 
 import streamlit as st
 
-from app.services.produk.rep_raw_produk import get_product_data
+from app.services.produk.repository import ProductRepository
 from app.services.produk.state import ProductLoadState
+
+# Singleton repository instance
+_repo = ProductRepository()
 
 
 def get_produk_state() -> ProductLoadState:
@@ -47,5 +50,9 @@ def save_produk_state(state: ProductLoadState) -> None:
 
 @st.cache_data(ttl=timedelta(minutes=10), show_spinner="Memuat data produk...")
 def get_product_data_cached():
-    """Adapter to make loose to streamlit."""
-    return get_product_data()
+    """Get product data from repository cache.
+
+    Returns:
+        pd.DataFrame: Cached product data with all transformations
+    """
+    return _repo.get_all_products()
