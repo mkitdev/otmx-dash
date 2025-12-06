@@ -1,7 +1,5 @@
 """Product Repository - Data access layer with SQL & transform logic."""
 
-from datetime import timedelta
-
 import duckdb
 import pandas as pd
 from loguru import logger
@@ -14,11 +12,10 @@ class ProductRepository:
 
     Encapsulates:
     - SQL query definition
-    - Data fetching from connection
-    - Data transformation via DuckDB
-    - Caching strategy
+    - Raw data fetching from connection
+    - Data transformation via DuckDB (reusable)
 
-    Pure OOP (no Streamlit logic, only cache decorator).
+    Pure OOP (no Streamlit logic).
     """
 
     SQL_QUERY = """
@@ -44,22 +41,18 @@ class ProductRepository:
     join operator as opr on prd.kode_operator = opr.kode
     """
 
-    def __init__(self, cache_ttl: int = 10):
-        """Initialize repository with cache TTL.
+    def __init__(self):
+        """Initialize repository."""
+        pass
 
-        Args:
-            cache_ttl: Cache time-to-live in minutes (default: 10)
-        """
-        self.cache_ttl = timedelta(minutes=cache_ttl)
-
-    def get_all_products(self) -> pd.DataFrame:
-        """Load & transform data produk.
+    def get_raw_products(self) -> pd.DataFrame:
+        """Load raw product data from database.
 
         Returns:
-            pd.DataFrame: Transformed product data with derived columns
+            pd.DataFrame: Raw product data without transformations
 
         Raises:
-            Exception: If database query or transform fails
+            Exception: If database query fails
         """
         try:
             conn = get_conn()
@@ -69,17 +62,38 @@ class ProductRepository:
                 logger.warning("Product data is empty")
                 return df_raw
 
-            df = self._transform(df_raw)
-            logger.info(f"Loaded & transformed product data: {len(df)} rows")
+            logger.info(f"Loaded raw product data: {len(df_raw)} rows")
 
         except Exception:
-            logger.error("Failed to load product data", exc_info=True)
+            logger.error("Failed to load raw product data", exc_info=True)
             raise
+
+        return df_raw
+
+    def get_all_products(self) -> pd.DataFrame:
+        """Load & transform data produk.
+
+        Convenience method: calls get_raw_products() + _transform_base()
+
+        Returns:
+            pd.DataFrame: Transformed product data with derived columns
+
+        Raises:
+            Exception: If database query or transform fails
+        """
+        df_raw = self.get_raw_products()
+
+        if df_raw.empty:
+            return df_raw
+
+        df = self._transform_base(df_raw)
+        logger.info(f"Loaded & transformed product data: {len(df)} rows")
 
         return df
 
-    def _transform(self, df_raw: pd.DataFrame) -> pd.DataFrame:
-        """Transform & normalize product data via DuckDB.
+    @staticmethod
+    def _transform_base(df_raw: pd.DataFrame) -> pd.DataFrame:
+        """Transform & normalize product data via DuckDB (reusable).
 
         Adds derived columns:
         - opr_status: Operator availability

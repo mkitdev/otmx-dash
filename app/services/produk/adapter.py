@@ -9,7 +9,12 @@ from datetime import timedelta
 
 import streamlit as st
 
-from app.services.produk.repository import ProductRepository
+from app.services.produk.internal.queries import (
+    aggregate_by_catatan,
+    aggregate_by_final_status,
+    aggregate_by_jenis,
+)
+from app.services.produk.internal.repository import ProductRepository
 from app.services.produk.state import ProductLoadState
 
 # Singleton repository instance
@@ -56,3 +61,38 @@ def get_product_data_cached():
         pd.DataFrame: Cached product data with all transformations
     """
     return _repo.get_all_products()
+
+
+@st.cache_data(
+    ttl=timedelta(minutes=10), show_spinner="Menyiapkan ringkasan catatan..."
+)
+def get_summary_by_catatan_cached():
+    """Get product summary grouped by operator notes (cached).
+
+    Returns:
+        pd.DataFrame: Summary with columns [opr_catatan, total_operator, total_produk]
+    """
+    df_raw = _repo.get_raw_products()
+    return aggregate_by_catatan(df_raw)
+
+
+@st.cache_data(ttl=timedelta(minutes=10), show_spinner="Menyiapkan ringkasan jenis...")
+def get_summary_by_jenis_cached():
+    """Get product summary grouped by product type (cached).
+
+    Returns:
+        pd.DataFrame: Summary with columns [prd_jenis, total_operator, total_produk]
+    """
+    df_raw = _repo.get_raw_products()
+    return aggregate_by_jenis(df_raw)
+
+
+@st.cache_data(ttl=timedelta(minutes=10), show_spinner="Menyiapkan ringkasan status...")
+def get_summary_by_final_status_cached():
+    """Get product summary grouped by final status (cached).
+
+    Returns:
+        pd.DataFrame: Summary with columns [prd_status_final, total_operator, total_produk]
+    """
+    df_raw = _repo.get_raw_products()
+    return aggregate_by_final_status(df_raw)
